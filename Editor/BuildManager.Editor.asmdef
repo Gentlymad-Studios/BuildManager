@@ -1,0 +1,23 @@
+{
+    "name": "BuildManager.Editor",
+    "rootNamespace": "",
+    "references": [
+        "EditorHelper",
+        "Gameloop.Vdf.Editor",
+        "EditorUI",
+        "Unity.Addressables.Editor",
+        "Unity.Addressables",
+        "BuildManager"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "Constraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

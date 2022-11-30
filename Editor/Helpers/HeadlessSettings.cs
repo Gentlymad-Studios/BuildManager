@@ -20,13 +20,13 @@ namespace BuildManager {
         [Serializable]
         public class SteamHeadless {
             [Tooltip("Fill with Defines that should be forced enabled for Headless Builds. Other Defines will be disabled.")]
-            public string[] enabledDefinesOverwrite;
+            public string[] enabledDefinesOverwrite = new string[] { "STEAM" };
         }
 
         [Serializable]
         public class GogHeadless {
             [Tooltip("Fill with Defines that should be forced enabled for Headless Builds. Other Defines will be disabled.")]
-            public string[] enabledDefinesOverwrite;
+            public string[] enabledDefinesOverwrite = new string[] { "GOGGALAXY", "DISABLESTEAMWORKS" };
         }
     }
 }

@@ -64,6 +64,9 @@ MonoBehaviour:
   headless:
     jenkinsPropertiesPath: ../../jenkins.properties
     steam:
-      enabledDefinesOverwrite: []
+      enabledDefinesOverwrite:
+      - STEAM
     gog:
-      enabledDefinesOverwrite: []
+      enabledDefinesOverwrite:
+      - GOGGALAXY
+      - DISABLESTEAMWORKS

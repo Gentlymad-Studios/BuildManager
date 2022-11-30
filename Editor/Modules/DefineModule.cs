@@ -8,6 +8,8 @@ namespace BuildManager {
         private EditorHelper.UI.ListField<string> definesList = null;
         private EditorHelper.UI.EditorPrefsManagedFoldoutArea foldoutArea = null;
 
+        List<string> defaultDefines = new List<string>() { "STEAM", "DISABLESTEAMWORKS", "GOGGALAXY" };
+
         public DefineModule(TargetGroupModule targetGroupModule) : base(targetGroupModule) {
             CreateDefinesList();
             foldoutArea = new EditorHelper.UI.EditorPrefsManagedFoldoutArea(OnFoldoutArea, "defineModule.targetFoldout");
@@ -63,6 +65,16 @@ namespace BuildManager {
                     definesList.items[index] = !active ? ("*" + defineName) : defineName;
                 }
             };
+        }
+
+        List<string> AddDefaultDefines(List<string> defineList) {
+            foreach (string define in defaultDefines) {
+                if (!defineList.Contains(define) && !defineList.Contains("*"+define)) {
+                    defineList.Add("*"+define);
+                }
+            }
+
+            return defineList;
         }
     }
 }

@@ -129,8 +129,7 @@ namespace BuildManager {
                 if (_instance == null) {
                     CacheDataPath();
                     CacheStreamingAssetsPath();
-                    string assetGUID = "228dcdb84d426334e98ccb4ca1eb7488";
-                    _instance = AssetDatabase.LoadAssetAtPath<BuildManagerSettings>(AssetDatabase.GUIDToAssetPath(assetGUID));
+                    _instance = EditorHelper.Utility.CreateSettingsFile<BuildManagerSettings>(cachedDataPath);
                 }
                 return _instance;
             }

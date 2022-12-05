@@ -5,6 +5,9 @@
 	"description": "BuildManager by Gentlymad Studios.",
 	"unity": "2022.1",
 	"unityRelease": "16f1",
+	"documentationUrl": "https://github.com/Gentlymad-Studios/BuildManager/blob/master/README.md",
+  	"changelogUrl": "https://github.com/Gentlymad-Studios/BuildManager/blob/master/CHANGELOG.md",
+  	"licensesUrl": "https://github.com/Gentlymad-Studios/BuildManager/blob/master/LICENSE.md",
 	"dependencies": {
 		"com.gentlymadstudios.editorhelper": "0.1.0",
 		"com.gentlymadstudios.vdfserializer": "0.1.0",

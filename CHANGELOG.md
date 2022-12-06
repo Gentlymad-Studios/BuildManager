@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - remove DISABLESTEAMWORKS define from headless default defines
+- VersionInfos are now stored in one json instead of multiple txt files
 
 ### Fixed
 - fixed some UI issues when steam credentials & app config were not provided

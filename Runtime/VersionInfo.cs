@@ -1,6 +1,7 @@
 using System.Reflection;
 using System;
 using UnityEngine;
+using System.IO;
 
 [assembly: AssemblyVersion("1.2.*")]
 namespace BuildManager {
@@ -9,18 +10,19 @@ namespace BuildManager {
         /// A specialized, custom version name
         /// </summary>
         public const string customVersionName = "";
+        private static string versionInfoPath = Path.Combine(Path.Combine(Application.dataPath, "Resources"), "VersionInfo.json");
 
+        #region BuildCounter
         /// <summary>
         /// Get the BuildCounterFrom the file
         /// </summary>
         /// <returns></returns>
         private static int GetBuildCounterFromFile() {
-            int counter = 0;
-            TextAsset txt = Resources.Load<TextAsset>(nameof(BuildCounter));
-            if (txt != null && !string.IsNullOrWhiteSpace(txt.text)) {
-                System.Int32.TryParse(txt.text, out counter);
+            VersionInfoJson versionInfoJson = LoadVersionInfoJson();
+            if (versionInfoJson != null) {
+                return versionInfoJson.BuildCounter;
             }
-            return counter;
+            return 0;
         }
 
         /// <summary>
@@ -47,21 +49,23 @@ namespace BuildManager {
 #if UNITY_EDITOR
             set {
                 _buildCounter = value;
-                TextAsset txt = Resources.Load<TextAsset>(nameof(BuildCounter));
-                string assetPath = UnityEditor.AssetDatabase.GetAssetPath(txt);
-                System.IO.File.WriteAllText(assetPath, _buildCounter.ToString());
+
+                VersionInfoJson versionInfoJson = LoadVersionInfoJson();
+                versionInfoJson.BuildCounter = _buildCounter;
             }
 #endif
         }
+        #endregion
 
+        #region GitHash
         /// <summary>
         /// Load githash from resources.
         /// </summary>
         /// <returns></returns>
         private static string LoadGitHashFromFile() {
-            TextAsset txt = Resources.Load<TextAsset>(nameof(GitHash));
-            if (txt != null && !string.IsNullOrWhiteSpace(txt.text)) {
-                return txt.text;
+            VersionInfoJson versionInfoJson = LoadVersionInfoJson();
+            if (versionInfoJson != null && !string.IsNullOrWhiteSpace(versionInfoJson.GitHash)) {
+                return versionInfoJson.GitHash;
             }
             return "";
         }
@@ -93,9 +97,8 @@ namespace BuildManager {
         //[UnityEditor.InitializeOnLoadMethod]
         [UnityEditor.MenuItem("Tools/" + nameof(UpdateGitHash))]
         public static void UpdateGitHash() {
-            TextAsset txt = Resources.Load<TextAsset>(nameof(GitHash));
-            string assetPath = UnityEditor.AssetDatabase.GetAssetPath(txt);
-            System.IO.File.WriteAllText(assetPath, CreateGitHash());
+            VersionInfoJson versionInfoJson = LoadVersionInfoJson();
+            versionInfoJson.Version = CreateGitHash();
             UnityEditor.AssetDatabase.Refresh();
         }
 
@@ -115,15 +118,17 @@ namespace BuildManager {
             return latestCommitHash;
         }
 #endif
+        #endregion
 
+        #region Timestamp
         /// <summary>
         /// Load the timestamp from file
         /// </summary>
         /// <returns></returns>
         private static string LoadTimestampFromFile() {
-            TextAsset txt = Resources.Load<TextAsset>(nameof(BuildTimestamp));
-            if (txt != null && !string.IsNullOrWhiteSpace(txt.text)) {
-                return txt.text;
+            VersionInfoJson versionInfoJson = LoadVersionInfoJson();
+            if (versionInfoJson != null && !string.IsNullOrWhiteSpace(versionInfoJson.BuildTimestamp)) {
+                return versionInfoJson.BuildTimestamp;
             }
             return "";
         }
@@ -155,28 +160,28 @@ namespace BuildManager {
         //[UnityEditor.InitializeOnLoadMethod]
         public static void UpdateBuildTimestamp() {
             string dateAndTime = CreateBuildTimestamp();
-            TextAsset txt = Resources.Load<TextAsset>(nameof(BuildTimestamp));
-            string assetPath = UnityEditor.AssetDatabase.GetAssetPath(txt);
-            System.IO.File.WriteAllText(assetPath, dateAndTime);
+            VersionInfoJson versionInfoJson = LoadVersionInfoJson();
+            versionInfoJson.BuildTimestamp = dateAndTime;
         }
 
         public static string CreateBuildTimestamp() {
             return System.DateTime.Now.ToShortDateString() + " | " + System.DateTime.Now.ToShortTimeString();
         }
 #endif
+        #endregion
 
+        #region Version
 #if UNITY_EDITOR
         public static void UpdateVersionCode() {
             string version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
-            TextAsset txt = Resources.Load<TextAsset>(nameof(VersionCode));
-            string assetPath = UnityEditor.AssetDatabase.GetAssetPath(txt);
-            System.IO.File.WriteAllText(assetPath, version);
+            VersionInfoJson versionInfoJson = LoadVersionInfoJson();
+            versionInfoJson.Version = version;
         }
 #endif
         private static string LoadVersionCodeFromFile() {
-            TextAsset txt = Resources.Load<TextAsset>(nameof(VersionCode));
-            if (txt != null && !string.IsNullOrWhiteSpace(txt.text)) {
-                return txt.text;
+            VersionInfoJson versionInfoJson = LoadVersionInfoJson();
+            if (versionInfoJson != null && !string.IsNullOrWhiteSpace(versionInfoJson.Version)) {
+                return versionInfoJson.Version;
             }
             return "";
         }
@@ -249,6 +254,22 @@ namespace BuildManager {
             }
         }
         private static string _versionName = null;
+        #endregion
+
+        /// <summary>
+        /// Try to Load VersionInfo JSON File, otherwise it creates a new one
+        /// </summary>
+        /// <returns>VersionInfoJson</returns>
+        private static VersionInfoJson LoadVersionInfoJson() {
+            if (!File.Exists(versionInfoPath)) {
+                VersionInfoJson newVersionInfo = new VersionInfoJson();
+                newVersionInfo.SaveToFile();
+                return newVersionInfo;
+            }
+
+            string json = File.ReadAllText(versionInfoPath);
+            return JsonUtility.FromJson<VersionInfoJson>(json);
+        }
 
         /// <summary>
         /// Make sure we print the VersionCode into the log on startup.
@@ -326,6 +347,61 @@ namespace BuildManager {
                 Debug.LogWarning(gitHashOutput);
                 Debug.LogWarning($"Memory: {SystemInfo.systemMemorySize}MB");
                 Debug.LogWarning("---------------------------------------------");
+            }
+        }
+
+        public class VersionInfoJson {
+            //Version
+            public string _version = "0.0.0.0";
+            public string Version {
+                get {
+                    return _version;
+                }
+                set {
+                    _version = value;
+                    SaveToFile();
+                }
+            }
+
+            //Build Counter
+            public int _buildCounter = 0;
+            public int BuildCounter {
+                get {
+                    return _buildCounter;
+                }
+                set {
+                    _buildCounter = value;
+                    SaveToFile();
+                }
+            }
+
+            //Timestamp
+            public string _buildTimestamp = "";
+            public string BuildTimestamp {
+                get {
+                    return _buildTimestamp;
+                }
+                set {
+                    _buildTimestamp = value;
+                    SaveToFile();
+                }
+            }
+
+            //GitHash
+            public string _gitHash = "";
+            public string GitHash {
+                get {
+                    return _gitHash;
+                }
+                set {
+                    _gitHash = value;
+                    SaveToFile();
+                }
+            }
+
+            public void SaveToFile() {
+                string json = JsonUtility.ToJson(this);
+                File.WriteAllText(versionInfoPath, json);
             }
         }
     }

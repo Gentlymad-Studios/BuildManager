@@ -80,11 +80,19 @@ namespace BuildManager {
                 void UpdateFunc() {
                     if (webRequest.isDone) {
                         if (!webRequest.isNetworkError) {
-                            ApiResponse response = JsonConvert.DeserializeObject<ApiResponse>(webRequest.downloadHandler.text);
-                            if (response != null && response.Response != null && response.Response.Betas != null) {
-                                List<string> branchNames = new List<string>() { defaultBetaBranchName };
-                                branchNames.AddRange(response.Response.Betas.Keys.Where(_ => _ != "public"));
-                                betaBranchNames = branchNames.ToArray();
+                            try {
+                                ApiResponse response = JsonConvert.DeserializeObject<ApiResponse>(webRequest.downloadHandler.text);
+                                if (response != null && response.Response != null && response.Response.Betas != null) {
+                                    List<string> branchNames = new List<string>() { defaultBetaBranchName };
+                                    branchNames.AddRange(response.Response.Betas.Keys.Where(_ => _ != "public"));
+                                    betaBranchNames = branchNames.ToArray();
+                                }
+                            } catch {
+                                branchNamesInitialized = false;
+                                alreadyGettingBranches = false;
+                                EditorApplication.update -= UpdateFunc;
+                                Debug.Log($"Unable to request branches for Steam AppId {appID}.");
+                                return;
                             }
                         } else {
                             Debug.Log("error" + webRequest.downloadHandler.text);

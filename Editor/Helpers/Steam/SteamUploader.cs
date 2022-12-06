@@ -21,6 +21,9 @@ namespace BuildManager{
         private SteamWebApiGetBranches getBranches = new SteamWebApiGetBranches();
         private SteamProcess process = new SteamProcess();
 
+        const string messageAppConfigMissing = "No Steam app config were found.\nPlease set up the BuildManagerSettings correctly.";
+        const string messageCredentialsMissing = "No Steam Credentials was given.\nPlease set up the BuildManagerSettings correctly.";
+
         private void SetupStyles() {
             if (!initialized) {
                 initialized = true;
@@ -44,7 +47,9 @@ namespace BuildManager{
                     int oldSteamID = SteamAppID.AppID; 
                     SteamAppID.AppID = appID;
                     if (forceUpdate || oldSteamID != appID) {
-                        getBranches.UpdateBetaBranches(appID);
+                        if (!string.IsNullOrEmpty(Settings.Steam.PublisherAPIKey) && !Settings.Steam.PublisherAPIKey.StartsWith("<add")) {
+                            getBranches.UpdateBetaBranches(appID);
+                        }
                     }
                     return;
                 }
@@ -56,6 +61,18 @@ namespace BuildManager{
             bool guienabled = GUI.enabled;
             GUI.enabled = !process.processing;
 
+            if (string.IsNullOrEmpty(Settings.Steam.PublisherAPIKey) || Settings.Steam.PublisherAPIKey.StartsWith("<add") ||
+                string.IsNullOrEmpty(Settings.Steam.BuildAccountName) || Settings.Steam.BuildAccountName.StartsWith("<add") ||
+                string.IsNullOrEmpty(Settings.Steam.BuildAccountPassword) || Settings.Steam.BuildAccountPassword.StartsWith("<add")) {
+                EditorGUILayout.HelpBox(messageCredentialsMissing, MessageType.Error, true);
+                return;
+            }
+
+            if (Settings.Steam.appConfigs.Count < 1) {
+                EditorGUILayout.HelpBox(messageAppConfigMissing, MessageType.Error, true);
+                return;
+            }
+
             // extract and display all available app configs
             appConfigNames.Clear();
             int index = 0;
@@ -66,6 +83,7 @@ namespace BuildManager{
                 }
             }
             index = EditorGUILayout.Popup("Application", index, appConfigNames.ToArray());
+
             EditorPrefs.SetInt(appIDKey, Settings.Steam.appConfigs[index].appID);
             UpdateSelectedAppConfig();
 

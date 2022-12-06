@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System;
 using static EditorHelper.UI;
+using System.Reflection;
 
 namespace BuildManager {
     public class BuildTargetGroupHelper {
@@ -31,6 +32,15 @@ namespace BuildManager {
 
         void InitializeTargetGroupLookUp() {
             foreach (BuildTargetGroup targetGroup in Enum.GetValues(typeof(BuildTargetGroup))) {
+                if (targetGroup == BuildTargetGroup.Unknown) {
+                    continue;
+                }
+
+                ObsoleteAttribute validTargetGroup = typeof(BuildTargetGroup).GetField(targetGroup.ToString()).GetCustomAttribute<ObsoleteAttribute>(false);
+                if (validTargetGroup != null) {
+                    continue;
+                }
+
                 string targetGroupName = Enum.GetName(typeof(BuildTargetGroup), targetGroup);
                 if (!targetGroupLookUp.ContainsKey(targetGroupName)) {
                     BuildTargetGroupHelper targetGroupObject = new BuildTargetGroupHelper();
@@ -109,10 +119,9 @@ namespace BuildManager {
             PlayerSettings.companyName = companyNameTmp;
             PlayerSettings.productName = productNameTmp;
             string bundleIdentifier = EditorHelper.Utility.CreateValidBundleIdentifier(companyName, productName);
-            foreach (var buildTargetGroup in targetGroupLookUp) {
+            foreach (KeyValuePair<string, BuildTargetGroupHelper> buildTargetGroup in targetGroupLookUp) {
                 PlayerSettings.SetApplicationIdentifier(buildTargetGroup.Value.group, bundleIdentifier);
             }
         }
     }
 }
-

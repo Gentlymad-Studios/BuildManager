@@ -10,7 +10,7 @@ namespace BuildManager {
         /// <summary>
         /// The internally managed appID
         /// </summary>
-        private static int appID = 933820;
+        private static int appID = 0;
 
         /// <summary>
         /// Static AppID setter/getter. Please keep in mind that setting this variable to another value,

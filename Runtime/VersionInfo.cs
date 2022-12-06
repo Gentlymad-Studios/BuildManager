@@ -262,6 +262,11 @@ namespace BuildManager {
         /// <returns>VersionInfoJson</returns>
         private static VersionInfoJson LoadVersionInfoJson() {
             if (!File.Exists(versionInfoPath)) {
+                string resDir = Path.GetDirectoryName(versionInfoPath);
+                if (!Directory.Exists(resDir)) {
+                    Directory.CreateDirectory(resDir);
+                }
+
                 VersionInfoJson newVersionInfo = new VersionInfoJson();
                 newVersionInfo.SaveToFile();
                 return newVersionInfo;
@@ -402,6 +407,9 @@ namespace BuildManager {
             public void SaveToFile() {
                 string json = JsonUtility.ToJson(this);
                 File.WriteAllText(versionInfoPath, json);
+#if UNITY_EDITOR
+                UnityEditor.AssetDatabase.Refresh();
+#endif
             }
         }
     }

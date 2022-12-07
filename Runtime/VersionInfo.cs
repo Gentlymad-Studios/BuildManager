@@ -2,9 +2,7 @@ using System.Reflection;
 using System;
 using UnityEngine;
 using System.IO;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Unity.VisualScripting.YamlDotNet.Core.Tokens;
 
 [assembly: AssemblyVersion("1.2.*")]
 namespace BuildManager {

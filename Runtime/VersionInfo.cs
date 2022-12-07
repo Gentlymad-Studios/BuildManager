@@ -2,6 +2,9 @@ using System.Reflection;
 using System;
 using UnityEngine;
 using System.IO;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Unity.VisualScripting.YamlDotNet.Core.Tokens;
 
 [assembly: AssemblyVersion("1.2.*")]
 namespace BuildManager {
@@ -18,11 +21,7 @@ namespace BuildManager {
         /// </summary>
         /// <returns></returns>
         private static int GetBuildCounterFromFile() {
-            VersionInfoJson versionInfoJson = LoadVersionInfoJson();
-            if (versionInfoJson != null) {
-                return versionInfoJson.BuildCounter;
-            }
-            return 0;
+            return GetVersionInfoValue<int>("buildCounter");
         }
 
         /// <summary>
@@ -49,9 +48,7 @@ namespace BuildManager {
 #if UNITY_EDITOR
             set {
                 _buildCounter = value;
-
-                VersionInfoJson versionInfoJson = LoadVersionInfoJson();
-                versionInfoJson.BuildCounter = _buildCounter;
+                SetVersionInfoValue("buildCounter", _buildCounter.ToString());
             }
 #endif
         }
@@ -63,11 +60,7 @@ namespace BuildManager {
         /// </summary>
         /// <returns></returns>
         private static string LoadGitHashFromFile() {
-            VersionInfoJson versionInfoJson = LoadVersionInfoJson();
-            if (versionInfoJson != null && !string.IsNullOrWhiteSpace(versionInfoJson.GitHash)) {
-                return versionInfoJson.GitHash;
-            }
-            return "";
+            return GetVersionInfoValue<string>("gitHash");
         }
 
         /// <summary>
@@ -97,8 +90,7 @@ namespace BuildManager {
         //[UnityEditor.InitializeOnLoadMethod]
         [UnityEditor.MenuItem("Tools/" + nameof(UpdateGitHash))]
         public static void UpdateGitHash() {
-            VersionInfoJson versionInfoJson = LoadVersionInfoJson();
-            versionInfoJson.Version = CreateGitHash();
+            SetVersionInfoValue("gitHash", CreateGitHash());
             UnityEditor.AssetDatabase.Refresh();
         }
 
@@ -126,11 +118,7 @@ namespace BuildManager {
         /// </summary>
         /// <returns></returns>
         private static string LoadTimestampFromFile() {
-            VersionInfoJson versionInfoJson = LoadVersionInfoJson();
-            if (versionInfoJson != null && !string.IsNullOrWhiteSpace(versionInfoJson.BuildTimestamp)) {
-                return versionInfoJson.BuildTimestamp;
-            }
-            return "";
+            return GetVersionInfoValue<string>("buildTimestamp");
         }
 
         /// <summary>
@@ -159,9 +147,7 @@ namespace BuildManager {
 #if UNITY_EDITOR
         //[UnityEditor.InitializeOnLoadMethod]
         public static void UpdateBuildTimestamp() {
-            string dateAndTime = CreateBuildTimestamp();
-            VersionInfoJson versionInfoJson = LoadVersionInfoJson();
-            versionInfoJson.BuildTimestamp = dateAndTime;
+            SetVersionInfoValue("buildTimestamp", CreateBuildTimestamp());
         }
 
         public static string CreateBuildTimestamp() {
@@ -174,16 +160,11 @@ namespace BuildManager {
 #if UNITY_EDITOR
         public static void UpdateVersionCode() {
             string version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
-            VersionInfoJson versionInfoJson = LoadVersionInfoJson();
-            versionInfoJson.Version = version;
+            SetVersionInfoValue("version", version);
         }
 #endif
         private static string LoadVersionCodeFromFile() {
-            VersionInfoJson versionInfoJson = LoadVersionInfoJson();
-            if (versionInfoJson != null && !string.IsNullOrWhiteSpace(versionInfoJson.Version)) {
-                return versionInfoJson.Version;
-            }
-            return "";
+            return GetVersionInfoValue<string>("version");
         }
 
         /// <summary>
@@ -256,25 +237,47 @@ namespace BuildManager {
         private static string _versionName = null;
         #endregion
 
+        #region JSON
         /// <summary>
         /// Try to Load VersionInfo JSON File, otherwise it creates a new one
         /// </summary>
-        /// <returns>VersionInfoJson</returns>
-        private static VersionInfoJson LoadVersionInfoJson() {
+        /// <returns>T</returns>
+        private static T GetVersionInfoValue<T>(string key) {
             if (!File.Exists(versionInfoPath)) {
-                string resDir = Path.GetDirectoryName(versionInfoPath);
-                if (!Directory.Exists(resDir)) {
-                    Directory.CreateDirectory(resDir);
-                }
-
-                VersionInfoJson newVersionInfo = new VersionInfoJson();
-                newVersionInfo.SaveToFile();
-                return newVersionInfo;
+                //Create Default JSON File
+                CreateDefaultVersionInfo();
             }
 
-            string json = File.ReadAllText(versionInfoPath);
-            return JsonUtility.FromJson<VersionInfoJson>(json);
+            JObject json = JObject.Parse(File.ReadAllText(versionInfoPath));
+            return json.Value<T>(key);
         }
+
+        /// <summary>
+        /// Set JSON value for given key
+        /// </summary>
+        /// <param name="key">Json Key</param>
+        /// <param name="value">Json Value</param>
+        private static void SetVersionInfoValue(string key, string value) {
+            JObject json = JObject.Parse(File.ReadAllText(versionInfoPath));
+            json[key] = value;
+            File.WriteAllText(versionInfoPath, json.ToString());
+#if UNITY_EDITOR
+            UnityEditor.AssetDatabase.Refresh();
+#endif
+        }
+
+        /// <summary>
+        /// Create Default JSON File
+        /// </summary>
+        private static void CreateDefaultVersionInfo() {
+            JObject json = new JObject();
+            json["version"] = "0.0.0.0";
+            json["buildCounter"] = "0";
+            json["buildTimestamp"] = "";
+            json["gitHash"] = "";
+            File.WriteAllText(versionInfoPath, json.ToString());
+        }
+        #endregion
 
         /// <summary>
         /// Make sure we print the VersionCode into the log on startup.
@@ -352,64 +355,6 @@ namespace BuildManager {
                 Debug.LogWarning(gitHashOutput);
                 Debug.LogWarning($"Memory: {SystemInfo.systemMemorySize}MB");
                 Debug.LogWarning("---------------------------------------------");
-            }
-        }
-
-        public class VersionInfoJson {
-            //Version
-            public string _version = "0.0.0.0";
-            public string Version {
-                get {
-                    return _version;
-                }
-                set {
-                    _version = value;
-                    SaveToFile();
-                }
-            }
-
-            //Build Counter
-            public int _buildCounter = 0;
-            public int BuildCounter {
-                get {
-                    return _buildCounter;
-                }
-                set {
-                    _buildCounter = value;
-                    SaveToFile();
-                }
-            }
-
-            //Timestamp
-            public string _buildTimestamp = "";
-            public string BuildTimestamp {
-                get {
-                    return _buildTimestamp;
-                }
-                set {
-                    _buildTimestamp = value;
-                    SaveToFile();
-                }
-            }
-
-            //GitHash
-            public string _gitHash = "";
-            public string GitHash {
-                get {
-                    return _gitHash;
-                }
-                set {
-                    _gitHash = value;
-                    SaveToFile();
-                }
-            }
-
-            public void SaveToFile() {
-                string json = JsonUtility.ToJson(this);
-                File.WriteAllText(versionInfoPath, json);
-#if UNITY_EDITOR
-                UnityEditor.AssetDatabase.Refresh();
-#endif
             }
         }
     }

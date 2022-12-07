@@ -30,3 +30,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.3] - 2022-12-07
 ### Added
 - added newtonsoft dependency
+
+### Changed
+- switched from JsonUtility to Newtonsoft

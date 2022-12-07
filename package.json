@@ -9,9 +9,11 @@
   	"changelogUrl": "https://github.com/Gentlymad-Studios/BuildManager/blob/master/CHANGELOG.md",
   	"licensesUrl": "https://github.com/Gentlymad-Studios/BuildManager/blob/master/LICENSE.md",
 	"dependencies": {
-		"com.gentlymadstudios.editorhelper": "https://github.com/Gentlymad-Studios/EditorHelper.git",
-		"com.gentlymadstudios.vdfserializer": "https://github.com/Gentlymad-Studios/VdfSerializer.git",
 		"com.unity.addressables": "1.20.5"
+	},
+	"gitDependencies": {
+		"com.gentlymadstudios.editorhelper": "https://github.com/Gentlymad-Studios/EditorHelper.git",
+		"com.gentlymadstudios.vdfserializer": "https://github.com/Gentlymad-Studios/VdfSerializer.git"
 	},
 	"keywords": [
 		"editor",

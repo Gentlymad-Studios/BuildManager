@@ -33,3 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - switched from JsonUtility to Newtonsoft
+
+## [0.1.4] - 2023-06-14
+### Removed
+- Removed asset bundle actions and methods from the build process

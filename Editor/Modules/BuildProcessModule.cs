@@ -57,61 +57,6 @@ namespace BuildManager {
             CreateTargetLookUp(); 
             targetFoldoutArea = new ToggableEditorPrefsManagedItemList("buildProcessModule.targetFoldout");
             miscFoldoutArea = new EditorPrefsManagedFoldoutArea(OnMiscFoldout, "buildProcessModule.miscFoldout", false, "Misc Build Options");
-
-            TryGetMethod_GetAddressablesPlatformPathInternal();
-        }
-
-        #region some hacky stuff using reflection as Unity hides somewhat interesting functions from the public
-        System.Reflection.MethodInfo _getPlatformPathMethod = null;
-        private void TryGetMethod_GetAddressablesPlatformPathInternal() {
-
-            System.Reflection.MethodInfo[] methods = typeof(UnityEngine.AddressableAssets.PlatformMappingService).GetMethods(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
-            for (int i = 0, iEnd = methods.Length; i < iEnd; ++i) {
-
-                System.Reflection.ParameterInfo[] parameters = methods[i].GetParameters();
-                if (methods[i].Name == "GetAddressablesPlatformPathInternal" &&
-                    methods[i].ReturnType == typeof(string) &&
-                    parameters.Length == 1 && parameters[0].ParameterType == typeof(BuildTarget)) {
-
-                    _getPlatformPathMethod = methods[i];
-                    break;
-                }
-            }
-        }
-
-        private string GetPlatformSubPath(BuildTarget target) {
-
-            if (_getPlatformPathMethod == null) return null;
-            return (string)_getPlatformPathMethod.Invoke(null, new object[] { target });
-        }
-        #endregion
-
-        private bool HasExistingBundlesForTarget(BuildTarget target) {
-
-            string libraryPath = "Library/com.unity.addressables/";//UnityEngine.AddressableAssets.Addressables.LibraryPath; // LibraryPath is only available in version 1.18+
-            string platformPath = GetPlatformSubPath(target);
-            string path = Path.Combine(Application.dataPath, "..", libraryPath, UnityEngine.AddressableAssets.Addressables.StreamingAssetsSubFolder, platformPath, target.ToString());
-            return Directory.Exists(path);
-        }
-
-        private void CheckBundlesForSelectedPlatforms(out List<BuildTarget> found, out List<BuildTarget> notFound) {
-
-            found = new List<BuildTarget>();
-            notFound = new List<BuildTarget>();
-            foreach (KeyValuePair<string, BuildTargetHelper> t in targetLookUp) {
-
-                if (t.Value.button.active) {
-
-                    if (HasExistingBundlesForTarget(t.Value.target)) {
-
-                        found.Add(t.Value.target);
-                    }
-                    else {
-
-                        notFound.Add(t.Value.target);
-                    }
-                }
-            }
         }
 
         private void OnMiscFoldout() {
@@ -121,8 +66,6 @@ namespace BuildManager {
                 EditorPrefs.SetBool(exclusionKey, EditorGUILayout.Toggle("Exclude Unwanted Files", EditorPrefs.GetBool(exclusionKey, true)));
             }
             EditorPrefs.SetBool(sendMailKey, EditorGUILayout.Toggle("Send Mail", EditorPrefs.GetBool(sendMailKey, false)));
-
-            DrawAddressablesBundleOptions();
         }
 
         string BuildTargetListToString(List<BuildTarget> targets) {
@@ -138,43 +81,6 @@ namespace BuildManager {
                 }
             }
             return result;
-        }
-
-        void DrawAddressablesBundleOptions() {
-
-            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-            {
-                CheckBundlesForSelectedPlatforms(out List<BuildTarget> found, out List<BuildTarget> notFound);
-
-                string foundStrings = BuildTargetListToString(found);
-                string notFoundStrings = BuildTargetListToString(notFound);
-
-                int bitmask = (found.Count > 0 ? 2 : 0) + (notFound.Count > 0 ? 1 : 0);
-                string helpBoxText = "";
-                switch (bitmask) {
-                case 0: // foundCount == 0 && notFoundCount == 0
-                    helpBoxText = "No platform selected.\nNo bundles need to be built.";
-                    break;
-                case 1: // foundCount == 0 && notFoundCount > 0
-                    helpBoxText = messageBundlesFoundForNoPlatforms;
-                    break;
-                case 2: // foundCount > 0 && notFoundCount == 0
-                    helpBoxText = string.Format(messageBundlesFoundForAllPlatforms, foundStrings);
-                    break;
-                case 3: // foundCount > 0 && notFoundCount > 0
-                    helpBoxText = string.Format(messageBundlesFoundForSomePlatforms, foundStrings, notFoundStrings);
-                    break;
-                }
-
-                EditorGUILayout.LabelField("Addressable Bundles", EditorStyles.boldLabel);
-                EditorGUILayout.HelpBox(helpBoxText, MessageType.Info, true);
-
-                BuildBundlesFilter oldVal = (BuildBundlesFilter)EditorPrefs.GetInt(buildAddressableBundles, (int)BuildBundlesFilter.All);
-                BuildBundlesFilter newVal = (BuildBundlesFilter)EditorGUILayout.EnumPopup("Build Bundles", oldVal);
-                EditorPrefs.SetInt(buildAddressableBundles, (int)newVal);
-                //EditorPrefs.SetBool(backupBundlesBeforeBuild, EditorGUILayout.Toggle("Backup before build", EditorPrefs.GetBool(backupBundlesBeforeBuild, true)));
-            }
-            EditorGUILayout.EndVertical();
         }
 
         void CreateTargetLookUp() {
@@ -708,28 +614,6 @@ namespace BuildManager {
             }
         }
 
-        private bool PlatformNeedsAddressableBundleBuild(BuildTarget target) {
-
-            BuildBundlesFilter filter = (BuildBundlesFilter)EditorPrefs.GetInt(buildAddressableBundles, (int)BuildBundlesFilter.All);
-            if (filter == BuildBundlesFilter.Missing) {
-
-                CheckBundlesForSelectedPlatforms(out List<BuildTarget> found, out List<BuildTarget> notFound);
-
-                return notFound.Contains(target);
-            }
-
-            return filter == BuildBundlesFilter.All;
-        }
-
-        private void SwitchActiveTargetAndBuildAddressableBundles(BuildTarget target) {
-
-            if (PlatformNeedsAddressableBundleBuild(target)) {
-
-                EditorUserBuildSettings.SwitchActiveBuildTarget(targetGroupModule.activeTargetGroup.group, target);
-                UnityEditor.AddressableAssets.Settings.AddressableAssetSettings.BuildPlayerContent();
-            }
-        }
-
         bool StartBuild(BuildTarget target, string path, BuildPlayerOptions options) {
 
             bool succeeded = false;
@@ -747,14 +631,8 @@ namespace BuildManager {
             options.locationPathName = targetPath;
             options.target = target;
 
-            System.Console.WriteLine($"##### Start Bundle Build: {DateTime.Now.ToString("HH:mm:ss")} #####");
-            DateTime startTime = DateTime.Now;
-            SwitchActiveTargetAndBuildAddressableBundles(target);
-            System.Console.WriteLine($"##### Finished Bundle Build: {DateTime.Now.ToString("HH:mm:ss")} ##### Bundlebuildtime: {DateTime.Now.Subtract(startTime)} #####");
-            HeadlessBuild.WriteToProperties("BundleTime", DateTime.Now.Subtract(startTime).ToString(@"mm\:ss"), true);
-
             System.Console.WriteLine($"##### Start Buildingprocess: {DateTime.Now.ToString("HH:mm:ss")} #####");
-            startTime = DateTime.Now;
+            DateTime startTime = DateTime.Now;
             var report = BuildPipeline.BuildPlayer(options);
             System.Console.WriteLine($"##### Finished Buildingprocess: {DateTime.Now.ToString("HH:mm:ss")}  ##### Buildtime: {DateTime.Now.Subtract(startTime)}#####");
             HeadlessBuild.WriteToProperties("BuildTime", DateTime.Now.Subtract(startTime).ToString(@"mm\:ss"), true);

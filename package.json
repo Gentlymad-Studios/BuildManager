@@ -1,6 +1,6 @@
 {
 	"name": "com.gentlymadstudios.buildmanager",
-	"version": "0.1.2",
+	"version": "0.1.4",
 	"displayName": "BuildManager",
 	"description": "BuildManager by Gentlymad Studios.",
 	"unity": "2022.1",

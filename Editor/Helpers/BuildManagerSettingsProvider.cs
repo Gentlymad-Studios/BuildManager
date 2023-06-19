@@ -2,22 +2,39 @@
 using UnityEditor;
 using EditorHelper;
 using System;
+using UnityEditor.UIElements;
+using UnityEngine.UIElements;
 
 namespace BuildManager {
-    public class BuildManagerSettingsProvider : SettingsProviderBase {
+    public class BuildManagerSettingsProvider : ScriptableSingletonProviderBase {
+        private static readonly string[] tags = new string[] { "BuildManager", "BuildManagerSettings" };
+        
+        [SettingsProvider]
+        public static SettingsProvider CreateMyCustomSettingsProvider() {
+            return BuildManagerSettings.instance ? new BuildManagerSettingsProvider() : null;
+        }
 
-        private const string path = basePath + nameof(BuildManagerSettings);
-        private static readonly string[] tags = new string[] { "BuildManager", "BuildManagerSettings", "BuildManager" };
-
-        public BuildManagerSettingsProvider(SettingsScope scope = SettingsScope.Project)
-            : base(path, scope) {
+        public BuildManagerSettingsProvider(SettingsScope scope = SettingsScope.Project) : base(BuildManagerSettings.MENUITEMBASE + nameof(BuildManagerSettings), scope) {
             keywords = tags;
         }
 
-        // Register the SettingsProvider
-        [SettingsProvider]
-        public static SettingsProvider CreateMyCustomSettingsProvider() {
-            return BuildManagerSettings.Instance ? new BuildManagerSettingsProvider() : null;
+        protected override EventCallback<SerializedPropertyChangeEvent> GetValueChangedCallback() {
+            return ValueChanged;
+        }
+
+        /// <summary>
+        /// Called when any value changed.
+        /// </summary>
+        /// <param name="evt"></param>
+        private void ValueChanged(SerializedPropertyChangeEvent evt) {
+            // notify all listeneres (ReactiveSettings)
+            serializedObject.ApplyModifiedProperties();
+            // call save on our singleton as it is a strange hybrid and not a full ScriptableObject
+            BuildManagerSettings.instance.Save();
+        }
+
+        protected override string GetHeader() {
+            return nameof(BuildManager);
         }
 
         public override Type GetDataType() {
@@ -25,11 +42,9 @@ namespace BuildManager {
         }
 
         public override dynamic GetInstance() {
-            return BuildManagerSettings.Instance;
-        }
-
-        protected override void OnChange() {
-
+            //Force HideFlags
+            BuildManagerSettings.instance.OnEnable();
+            return BuildManagerSettings.instance;
         }
     }
 }

@@ -3,8 +3,10 @@ using UnityEditor;
 using UnityEngine;
 
 namespace BuildManager {
-    //[CreateAssetMenu(fileName = nameof(BuildManagerSettings), menuName = nameof(BuildManagerSettings), order = 1)]
-    public class BuildManagerSettings : ScriptableObject {
+    [FilePath("ProjectSettings/" + nameof(BuildManagerSettings) + ".asset", FilePathAttribute.Location.ProjectFolder)]
+    public class BuildManagerSettings : ScriptableSingleton<BuildManagerSettings> {
+        public const string MENUITEMBASE = "Tools/";
+
         /// <summary>
         /// thread safe access to data path
         /// </summary>
@@ -69,7 +71,7 @@ namespace BuildManager {
         public GeneralSettings general = new GeneralSettings();
         public static GeneralSettings General {
             get {
-                return Instance.general;
+                return instance.general;
             }
         }
 
@@ -79,7 +81,7 @@ namespace BuildManager {
         public SteamSettings steam = new SteamSettings();
         public static SteamSettings Steam {
             get {
-                return Instance.steam;
+                return instance.steam;
             }
         }
 
@@ -89,7 +91,7 @@ namespace BuildManager {
         public GOGGalaxySettings gogGalaxy = new GOGGalaxySettings();
         public static GOGGalaxySettings GOGGalaxy {
             get {
-                return Instance.gogGalaxy;
+                return instance.gogGalaxy;
             }
         }
 
@@ -99,7 +101,7 @@ namespace BuildManager {
         public MagentaSettings magenta = new MagentaSettings();
         public static MagentaSettings Magenta {
             get {
-                return Instance.magenta;
+                return instance.magenta;
             }
         }
 
@@ -109,7 +111,7 @@ namespace BuildManager {
         public MailSettings mail = new MailSettings();
         public static MailSettings Mail {
             get {
-                return Instance.mail;
+                return instance.mail;
             }
         }
 
@@ -119,20 +121,18 @@ namespace BuildManager {
         public HeadlessSettings headless = new HeadlessSettings();
         public static HeadlessSettings Headless {
             get {
-                return Instance.headless;
+                return instance.headless;
             }
         }
 
-        private static BuildManagerSettings _instance = null;
-        public static BuildManagerSettings Instance {
-            get {
-                if (_instance == null) {
-                    CacheDataPath();
-                    CacheStreamingAssetsPath();
-                    _instance = EditorHelper.Utility.CreateSettingsFile<BuildManagerSettings>(cachedDataPath);
-                }
-                return _instance;
-            }
+        public void OnEnable() {
+            CacheDataPath();
+            CacheStreamingAssetsPath();
+            hideFlags &= ~HideFlags.NotEditable;
+        }
+
+        public void Save() {
+            Save(true);
         }
     }
 }

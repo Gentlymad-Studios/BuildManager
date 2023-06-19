@@ -15,12 +15,12 @@ namespace BuildManager {
 
         readonly static List<string> deleteDirectoryExceptions = new List<string>() { "Addon" };
 
-        //Start a Build for Steam with Arguments
+        //Start a Build for Steam
         static void BuildForSteam() {
             BuildGeneral(DistributionPlatform.Steam);
         }
 
-        //Start a Build for Gog with Arguments
+        //Start a Build for Gog
         static void BuildForGog() {
             BuildGeneral(DistributionPlatform.GOG);
         }
@@ -56,6 +56,14 @@ namespace BuildManager {
             bool upload;
             bool.TryParse(ExtractArg(arguments, "#upload"), out upload);
 
+            bool customOverwriteDefines = false;
+            string defines = ExtractArg(arguments, "#defines");
+            string[] customDefines = null;
+            if (!string.IsNullOrEmpty(defines)) {
+                customOverwriteDefines = true;
+                customDefines = defines.Split(',');
+            }
+
             string distributionBranch = "";
 
             //Set Defines
@@ -63,12 +71,21 @@ namespace BuildManager {
                 case DistributionPlatform.Steam:
                     //extract steambranch arg
                     distributionBranch = ExtractArg(arguments, "#steambranch");
-                    OverwriteDefines(Settings.Headless.steam.enabledDefinesOverwrite.ToList());
+                    if (customOverwriteDefines) {
+                        definesBackup = EditorHelper.Utility.GetDefinesForTargetGroup(targetGroupModule.activeTargetGroup.group);
+                        PlayerSettings.SetScriptingDefineSymbolsForGroup(targetGroupModule.activeTargetGroup.group, DefineArrayToString(customDefines));
+                    } else {
+                        OverwriteDefines(Settings.Headless.steam.enabledDefinesOverwrite.ToList());
+                    }
                     break;
 
-
                 case DistributionPlatform.GOG:
-                    OverwriteDefines(Settings.Headless.gog.enabledDefinesOverwrite.ToList());
+                    if (customOverwriteDefines) {
+                        definesBackup = EditorHelper.Utility.GetDefinesForTargetGroup(targetGroupModule.activeTargetGroup.group);
+                        PlayerSettings.SetScriptingDefineSymbolsForGroup(targetGroupModule.activeTargetGroup.group, DefineArrayToString(customDefines));
+                    } else {
+                        OverwriteDefines(Settings.Headless.gog.enabledDefinesOverwrite.ToList());
+                    }
                     break;
             }
 
@@ -82,9 +99,6 @@ namespace BuildManager {
             WriteToProperties("Error", "None");
 
             Console.WriteLine($"##### Build Done: {DateTime.Now.ToString("HH:mm:ss")} #####");
-
-
-
         }
 
         //Overwrite Defines for given Platform

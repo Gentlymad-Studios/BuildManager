@@ -1,6 +1,6 @@
 {
 	"name": "com.gentlymadstudios.buildmanager",
-	"version": "0.1.4",
+	"version": "0.1.5",
 	"displayName": "BuildManager",
 	"description": "BuildManager by Gentlymad Studios.",
 	"unity": "2022.1",
@@ -8,11 +8,11 @@
 	"documentationUrl": "https://github.com/Gentlymad-Studios/BuildManager/blob/master/README.md",
   	"changelogUrl": "https://github.com/Gentlymad-Studios/BuildManager/blob/master/CHANGELOG.md",
   	"licensesUrl": "https://github.com/Gentlymad-Studios/BuildManager/blob/master/LICENSE.md",
+	"custom_packageJsonLink": "https://raw.githubusercontent.com/Gentlymad-Studios/BuildManager/master/package.json",
 	"dependencies": {
-		"com.unity.addressables": "1.20.5",
 		"com.unity.nuget.newtonsoft-json": "3.0.2"
 	},
-	"gitDependencies": {
+	"custom_gitDependencies": {
 		"com.gentlymadstudios.editorhelper": "https://github.com/Gentlymad-Studios/EditorHelper.git",
 		"com.gentlymadstudios.vdfserializer": "https://github.com/Gentlymad-Studios/VdfSerializer.git"
 	},

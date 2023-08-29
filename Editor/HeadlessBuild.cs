@@ -62,7 +62,10 @@ namespace BuildManager {
             if (!string.IsNullOrEmpty(defines)) {
                 customOverwriteDefines = true;
                 customDefines = defines.Split(',');
+                Debug.Log("===== define attribute not null =====");
             }
+
+            Debug.Log("===== define attribute =====" + defines + " - " + customOverwriteDefines);
 
             string distributionBranch = "";
 
@@ -81,13 +84,17 @@ namespace BuildManager {
 
                 case DistributionPlatform.GOG:
                     if (customOverwriteDefines) {
+                        Debug.Log("===== custom overwrite defines =====");
                         definesBackup = EditorHelper.Utility.GetDefinesForTargetGroup(targetGroupModule.activeTargetGroup.group);
                         PlayerSettings.SetScriptingDefineSymbolsForGroup(targetGroupModule.activeTargetGroup.group, DefineArrayToString(customDefines));
                     } else {
+                        Debug.Log("===== internal overwrite defines =====");
                         OverwriteDefines(Settings.Headless.gog.enabledDefinesOverwrite.ToList());
                     }
                     break;
             }
+
+            Debug.Log("===== Defines: " + string.Concat(EditorHelper.Utility.GetDefinesForTargetGroup(targetGroupModule.activeTargetGroup.group)) + " =====");
 
             DeleteFilesAndFoldersOfBuildsFolder();
             buildProcessModule.SaveHeadless(distributionPlatform, isDevBuild, buildtarget, distributionBranch, appID, upload);

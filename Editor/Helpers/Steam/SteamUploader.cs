@@ -3,7 +3,6 @@ using UnityEngine;
 using System.Collections.Generic;
 using Settings = BuildManager.BuildManagerSettings;
 using System;
-using static PlasticGui.LaunchDiffParameters;
 
 namespace BuildManager{
 

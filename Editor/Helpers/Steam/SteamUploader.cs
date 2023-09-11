@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using Settings = BuildManager.BuildManagerSettings;
 using System;
+using static PlasticGui.LaunchDiffParameters;
 
 namespace BuildManager{
 
@@ -160,17 +161,27 @@ namespace BuildManager{
         /// <param name="targets"></param>
         /// <param name="appID"></param>
         public void UploadHeadless(SuccessfulBuildTargets targets, int appID) {
+            foreach (var build in targets.builds) {
+                System.Console.WriteLine(build.buildTarget);
+            }
+
             System.Console.WriteLine("[Steam: Upload Default] " + ((targets != null && targets.builds != null) ? string.Join(",", targets.GetBuildTargets()) : "NULL!"));
             System.Console.WriteLine($"##### Start Upload: {DateTime.Now.ToString("HH:mm:ss")} #####");
             DateTime startTime = DateTime.Now;
 
             if (targets != null && targets.Count > 0) {
+
+                System.Console.WriteLine("targets != null && targets.Count > 0");
+
                 UpdateSelectedAppConfig(tempAppID: appID);
                 if (selectedAppConfig == null) {
                     Debug.Log("No application selected");
                     HeadlessBuild.WriteToProperties("Error", "30");
                     EditorApplication.Exit(30);
                 } else {
+
+                    System.Console.WriteLine("AppConfig: " + selectedAppConfig);
+
                     Settings.CacheDataPath();
                     Settings.CacheStreamingAssetsPath();
                     var buildMessage = CreateStandardBuildMessage(targets == null ? "DLCUpload" : string.Join(",", targets));

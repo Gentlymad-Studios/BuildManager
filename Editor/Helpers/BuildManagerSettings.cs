@@ -51,14 +51,12 @@ namespace BuildManager {
             }
         }
 
-        private static string buildPath = null;
         public static string BuildPath {
             get {
                 return General.paths.BuildsFolder;
             }
         }
 
-        private static string addonsPath = null;
         public static string AddonsPath {
             get {
                 return General.paths.AddonsFolder;

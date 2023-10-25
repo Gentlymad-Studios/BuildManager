@@ -79,7 +79,7 @@ namespace BuildManager {
 
                 void UpdateFunc() {
                     if (webRequest.isDone) {
-                        if (!webRequest.isNetworkError) {
+                        if (webRequest.result != UnityWebRequest.Result.ConnectionError) {
                             try {
                                 ApiResponse response = JsonConvert.DeserializeObject<ApiResponse>(webRequest.downloadHandler.text);
                                 if (response != null && response.Response != null && response.Response.Betas != null) {

@@ -1,3 +1,6 @@
+using Newtonsoft.Json.Linq;
+using System.IO;
+
 namespace BuildManager { 
 #if UNITY_EDITOR || STEAM
     /// <summary>
@@ -6,57 +9,56 @@ namespace BuildManager {
     /// This is relevant for editor tools like the build manager but also the steam backend service.
     /// </summary>
     public class SteamAppID {
-
         /// <summary>
-        /// The internally managed appID
-        /// </summary>
-        private static int appID = 0;
-
-        /// <summary>
-        /// Static AppID setter/getter. Please keep in mind that setting this variable to another value,
-        /// forces a rewrite of the SteamAppID.cs file.
+        /// Static AppID setter/getter
         /// </summary>
         public static int AppID {
             get {
-                return appID;
+                return GetSteamAppIdValue<int>("steamAppId");
             }
-#if UNITY_EDITOR
             set {
-                if (appID != value) {
-
-                    // convert GUID of SteamAppID.cs into asset path
-                    string assetPath = UnityEditor.AssetDatabase.GUIDToAssetPath("86d0eecdc263a50499f9bbb431e0a96b");
-
-                    // replace appID with
-                    string contents = System.IO.File.ReadAllText(assetPath);
-                    string appIDVariable = nameof(appID) + " = ";
-                    contents = contents.Replace(appIDVariable + appID, appIDVariable + value);
-
-                    // write to disk
-                    System.IO.File.WriteAllText(assetPath, contents);
-
-                    // change steam_appid.txt file to contain the correct app id
-                    SetSteamAppidTxtFile();
-                    UnityEditor.AssetDatabase.Refresh();
-                }
+                SetSteamAppIdValue("steamAppId", value.ToString());
             }
-#endif
         }
 
+        #region JSON
+        /// <summary>
+        /// Try to Load VersionInfo JSON File, otherwise it creates a new one
+        /// </summary>
+        /// <returns>T</returns>
+        private static T GetSteamAppIdValue<T>(string key) {
+            if (!File.Exists(BuildManagerRuntimeSettings.Instance.SteamAppIdPath)) {
+                //Create Default JSON File
+                CreateDefaultSteamAppIdFile();
+            }
+
+            JObject json = JObject.Parse(File.ReadAllText(BuildManagerRuntimeSettings.Instance.SteamAppIdPath));
+            return json.Value<T>(key);
+        }
+
+        /// <summary>
+        /// Set JSON value for given key
+        /// </summary>
+        /// <param name="key">Json Key</param>
+        /// <param name="value">Json Value</param>
+        private static void SetSteamAppIdValue(string key, string value) {
+            JObject json = JObject.Parse(File.ReadAllText(BuildManagerRuntimeSettings.Instance.SteamAppIdPath));
+            json[key] = value;
+            File.WriteAllText(BuildManagerRuntimeSettings.Instance.SteamAppIdPath, json.ToString());
 #if UNITY_EDITOR
-        [UnityEditor.InitializeOnLoadMethod]
-        private static void SetSteamAppidTxtFile() {
-            string pathToSteamAppidFile = System.IO.Path.Combine(UnityEngine.Application.dataPath, "../steam_appid.txt");
-            if (System.IO.File.Exists(pathToSteamAppidFile)) {
-                string appIDString = appID.ToString(); 
-                if (System.IO.File.ReadAllText(pathToSteamAppidFile) != appIDString) {
-                    System.IO.File.WriteAllText(pathToSteamAppidFile, appIDString);
-                }
-            } else {
-                UnityEngine.Debug.Log("[Steam] steam_appid.txt could not be found at path: " + System.IO.Path.GetFullPath(pathToSteamAppidFile));
-            }
-        }
+            UnityEditor.AssetDatabase.Refresh();
 #endif
+        }
+
+        /// <summary>
+        /// Create Default JSON File
+        /// </summary>
+        private static void CreateDefaultSteamAppIdFile() {
+            JObject json = new JObject();
+            json["steamAppId"] = "0";
+            File.WriteAllText(BuildManagerRuntimeSettings.Instance.SteamAppIdPath, json.ToString());
+        }
+        #endregion
     }
 #endif
 }

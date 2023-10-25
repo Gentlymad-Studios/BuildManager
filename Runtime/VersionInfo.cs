@@ -11,7 +11,6 @@ namespace BuildManager {
         /// A specialized, custom version name
         /// </summary>
         public const string customVersionName = "";
-        private static string versionInfoPath = Path.Combine(Path.Combine(Application.dataPath, "Resources"), "VersionInfo.json");
 
         #region BuildCounter
         /// <summary>
@@ -94,9 +93,9 @@ namespace BuildManager {
 
         public static string CreateGitHash() {
             string latestCommitHash = "";
-            string path = System.IO.Path.Combine(Application.dataPath, "../../../.git/logs/HEAD");
-            if (System.IO.File.Exists(path)) {
-                string[] lines = System.IO.File.ReadAllLines(path);
+            string path = BuildManagerRuntimeSettings.Instance.GitHeadPath;
+            if (File.Exists(path)) {
+                string[] lines = File.ReadAllLines(path);
                 if (lines != null && lines.Length > 0) {
                     string latestLine = lines[lines.Length - 1];
                     string[] latestLineData = latestLine.Split(' ');
@@ -241,12 +240,12 @@ namespace BuildManager {
         /// </summary>
         /// <returns>T</returns>
         private static T GetVersionInfoValue<T>(string key) {
-            if (!File.Exists(versionInfoPath)) {
+            if (!File.Exists(BuildManagerRuntimeSettings.Instance.VersionInfoPath)) {
                 //Create Default JSON File
                 CreateDefaultVersionInfo();
             }
 
-            JObject json = JObject.Parse(File.ReadAllText(versionInfoPath));
+            JObject json = JObject.Parse(File.ReadAllText(BuildManagerRuntimeSettings.Instance.VersionInfoPath));
             return json.Value<T>(key);
         }
 
@@ -256,9 +255,9 @@ namespace BuildManager {
         /// <param name="key">Json Key</param>
         /// <param name="value">Json Value</param>
         private static void SetVersionInfoValue(string key, string value) {
-            JObject json = JObject.Parse(File.ReadAllText(versionInfoPath));
+            JObject json = JObject.Parse(File.ReadAllText(BuildManagerRuntimeSettings.Instance.VersionInfoPath));
             json[key] = value;
-            File.WriteAllText(versionInfoPath, json.ToString());
+            File.WriteAllText(BuildManagerRuntimeSettings.Instance.VersionInfoPath, json.ToString());
 #if UNITY_EDITOR
             UnityEditor.AssetDatabase.Refresh();
 #endif
@@ -273,7 +272,7 @@ namespace BuildManager {
             json["buildCounter"] = "0";
             json["buildTimestamp"] = "";
             json["gitHash"] = "";
-            File.WriteAllText(versionInfoPath, json.ToString());
+            File.WriteAllText(BuildManagerRuntimeSettings.Instance.VersionInfoPath, json.ToString());
         }
         #endregion
 
@@ -357,4 +356,3 @@ namespace BuildManager {
         }
     }
 }
-

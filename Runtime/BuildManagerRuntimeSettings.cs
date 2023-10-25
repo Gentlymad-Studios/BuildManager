@@ -1,3 +1,4 @@
+using Codice.CM.Common;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
@@ -36,14 +37,16 @@ namespace BuildManager {
                     instance = Resources.Load<BuildManagerRuntimeSettings>("Settings/BuildManagerRuntimeSettings");
                 }
 
-                if(instance == null) {
+#if UNITY_EDITOR
+                if (instance == null) {
                     BuildManagerRuntimeSettings asset = CreateInstance<BuildManagerRuntimeSettings>();
 
                     AssetDatabase.CreateAsset(asset, "Assets/Resources/Settings/BuildManagerRuntimeSettings.asset");
                     AssetDatabase.SaveAssets();
                     AssetDatabase.Refresh();
                 }
-                
+#endif
+
                 return instance;
             }
         }

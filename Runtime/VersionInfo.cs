@@ -89,6 +89,7 @@ namespace BuildManager {
         public static void UpdateGitHash() {
             SetVersionInfoValue("gitHash", CreateGitHash());
             UnityEditor.AssetDatabase.Refresh();
+            Debug.Log("GitHash: " + GetVersionInfoValue<string>("gitHash"));
         }
 
         public static string CreateGitHash() {
@@ -103,6 +104,8 @@ namespace BuildManager {
                         latestCommitHash = latestLineData[1].Substring(0, 9);
                     }
                 }
+            } else {
+                Debug.LogWarning("Unable to extract GitHash at Path " + path);
             }
             return latestCommitHash;
         }

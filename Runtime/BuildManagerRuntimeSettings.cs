@@ -48,10 +48,11 @@ namespace BuildManager {
             }
         }
 
-
+#if UNITY_EDITOR
         [InitializeOnLoadMethod]
         public static void Initialize() {
             instance = Instance;
         }
+#endif
     }
 }

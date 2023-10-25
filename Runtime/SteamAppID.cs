@@ -1,7 +1,7 @@
 using Newtonsoft.Json.Linq;
 using System.IO;
 
-namespace BuildManager { 
+namespace BuildManager {
 #if UNITY_EDITOR || STEAM
     /// <summary>
     /// Class to manage the Steam App ID of the project.
@@ -12,12 +12,16 @@ namespace BuildManager {
         /// <summary>
         /// Static AppID setter/getter
         /// </summary>
+        private static int appID = 0;
         public static int AppID {
             get {
                 return GetSteamAppIdValue<int>("steamAppId");
             }
             set {
-                SetSteamAppIdValue("steamAppId", value.ToString());
+				if (appID != value) {
+					SetSteamAppIdValue("steamAppId", value.ToString());
+					appID = value;
+				}
             }
         }
 

@@ -19,9 +19,12 @@ namespace BuildManager {
             }
             set {
 				if (appID != value) {
-					SetSteamAppIdValue("steamAppId", value.ToString());
-					appID = value;
-				}
+                    appID = value;
+                    SetSteamAppIdValue("steamAppId", value.ToString());
+#if UNITY_EDITOR
+                    WriteSteamAppIdTxt();
+#endif
+                }
             }
         }
 
@@ -63,6 +66,13 @@ namespace BuildManager {
             File.WriteAllText(BuildManagerRuntimeSettings.Instance.SteamAppIdPath, json.ToString());
         }
         #endregion
+
+#if UNITY_EDITOR
+        private static void WriteSteamAppIdTxt() {
+            string strSteamAppIdPath = Path.Combine(Directory.GetCurrentDirectory(), "steam_appid.txt");
+            File.WriteAllText(strSteamAppIdPath, appID.ToString());
+        }
+#endif
     }
 #endif
 }

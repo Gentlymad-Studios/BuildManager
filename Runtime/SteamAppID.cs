@@ -1,5 +1,6 @@
 using Newtonsoft.Json.Linq;
 using System.IO;
+using UnityEngine;
 
 namespace BuildManager {
 #if UNITY_EDITOR || STEAM
@@ -34,12 +35,14 @@ namespace BuildManager {
         /// </summary>
         /// <returns>T</returns>
         private static T GetSteamAppIdValue<T>(string key) {
+#if UNITY_EDITOR
             if (!File.Exists(BuildManagerRuntimeSettings.Instance.SteamAppIdPath)) {
                 //Create Default JSON File
                 CreateDefaultSteamAppIdFile();
             }
-
-            JObject json = JObject.Parse(File.ReadAllText(BuildManagerRuntimeSettings.Instance.SteamAppIdPath));
+#endif
+            TextAsset steamAppIdFile = Resources.Load<TextAsset>(BuildManagerRuntimeSettings.Instance.SteamAppIdResourcePath);
+            JObject json = JObject.Parse(steamAppIdFile.text);
             return json.Value<T>(key);
         }
 
@@ -49,10 +52,10 @@ namespace BuildManager {
         /// <param name="key">Json Key</param>
         /// <param name="value">Json Value</param>
         private static void SetSteamAppIdValue(string key, string value) {
+#if UNITY_EDITOR
             JObject json = JObject.Parse(File.ReadAllText(BuildManagerRuntimeSettings.Instance.SteamAppIdPath));
             json[key] = value;
             File.WriteAllText(BuildManagerRuntimeSettings.Instance.SteamAppIdPath, json.ToString());
-#if UNITY_EDITOR
             UnityEditor.AssetDatabase.Refresh();
 #endif
         }

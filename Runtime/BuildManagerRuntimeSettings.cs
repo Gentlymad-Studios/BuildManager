@@ -11,12 +11,22 @@ namespace BuildManager {
                 return Path.Combine("Assets/Resources/", versionInfoPath);
             }
         }
+        public string VersionInfoResourcePath {
+            get {
+                return versionInfoPath.Remove(versionInfoPath.LastIndexOf('.'));
+            }
+        }
 
         [SerializeField]
         private string steamAppIdPath = "SteamAppId.json";
         public string SteamAppIdPath {
             get {
                 return Path.Combine("Assets/Resources/", steamAppIdPath);
+            }
+        }
+        public string SteamAppIdResourcePath {
+            get {
+                return steamAppIdPath.Remove(steamAppIdPath.LastIndexOf('.'));
             }
         }
 

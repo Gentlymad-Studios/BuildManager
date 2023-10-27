@@ -1,8 +1,8 @@
-using System.Reflection;
-using System;
-using UnityEngine;
-using System.IO;
 using Newtonsoft.Json.Linq;
+using System;
+using System.IO;
+using System.Reflection;
+using UnityEngine;
 
 [assembly: AssemblyVersion("1.2.*")]
 namespace BuildManager {
@@ -243,12 +243,14 @@ namespace BuildManager {
         /// </summary>
         /// <returns>T</returns>
         private static T GetVersionInfoValue<T>(string key) {
+#if UNITY_EDITOR
             if (!File.Exists(BuildManagerRuntimeSettings.Instance.VersionInfoPath)) {
                 //Create Default JSON File
                 CreateDefaultVersionInfo();
             }
-
-            JObject json = JObject.Parse(File.ReadAllText(BuildManagerRuntimeSettings.Instance.VersionInfoPath));
+#endif
+            TextAsset versionInfoFile = Resources.Load<TextAsset>(BuildManagerRuntimeSettings.Instance.VersionInfoResourcePath);
+            JObject json = JObject.Parse(versionInfoFile.text);
             return json.Value<T>(key);
         }
 
@@ -258,10 +260,10 @@ namespace BuildManager {
         /// <param name="key">Json Key</param>
         /// <param name="value">Json Value</param>
         private static void SetVersionInfoValue(string key, string value) {
+#if UNITY_EDITOR
             JObject json = JObject.Parse(File.ReadAllText(BuildManagerRuntimeSettings.Instance.VersionInfoPath));
             json[key] = value;
             File.WriteAllText(BuildManagerRuntimeSettings.Instance.VersionInfoPath, json.ToString());
-#if UNITY_EDITOR
             UnityEditor.AssetDatabase.Refresh();
 #endif
         }
@@ -270,14 +272,16 @@ namespace BuildManager {
         /// Create Default JSON File
         /// </summary>
         private static void CreateDefaultVersionInfo() {
+#if UNITY_EDITOR
             JObject json = new JObject();
             json["version"] = "0.0.0.0";
             json["buildCounter"] = "0";
             json["buildTimestamp"] = "";
             json["gitHash"] = "";
             File.WriteAllText(BuildManagerRuntimeSettings.Instance.VersionInfoPath, json.ToString());
+#endif
         }
-        #endregion
+#endregion
 
         /// <summary>
         /// Make sure we print the VersionCode into the log on startup.

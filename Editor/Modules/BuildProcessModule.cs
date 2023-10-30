@@ -36,6 +36,9 @@ namespace BuildManager {
         public SuccessfulBuildTargets succeededBuildTargets = new SuccessfulBuildTargets();
         private string lastBuildTargetPath = null;
 
+        public delegate void Callback();
+        public static Callback BeforeBuild;
+
         enum BuildBundlesFilter {
             [Tooltip("No bundles will be built.")]
             None,
@@ -195,6 +198,10 @@ namespace BuildManager {
         }
 
         public void SaveHeadless(DistributionPlatform plattform,bool isDevBuild, BuildTarget buildtarget, string branch, int appID, bool upload = true) {
+            if (BeforeBuild != null) {
+                BeforeBuild();
+            }
+
             BuildPlayerOptions options = new BuildPlayerOptions();
 
             List<BuildTarget> targets = new List<BuildTarget>();
@@ -300,6 +307,10 @@ namespace BuildManager {
         }
 
         public override void Save() {
+            if (BeforeBuild != null) {
+                BeforeBuild();
+            }
+
             BuildPlayerOptions options = new BuildPlayerOptions();
 
             List<BuildTarget> targets;

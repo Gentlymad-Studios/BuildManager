@@ -5,7 +5,7 @@ using UnityEngine;
 namespace BuildManager {
     public class BuildManagerRuntimeSettings : ScriptableObject {
         [SerializeField]
-        private string versionInfoPath = "VersionInfo.json";
+        private string versionInfoPath;
         public string VersionInfoPath {
             get {
                 return Path.Combine("Assets/Resources/", versionInfoPath);
@@ -18,7 +18,7 @@ namespace BuildManager {
         }
 
         [SerializeField]
-        private string steamAppIdPath = "SteamAppId.json";
+        private string steamAppIdPath;
         public string SteamAppIdPath {
             get {
                 return Path.Combine("Assets/Resources/", steamAppIdPath);
@@ -31,7 +31,7 @@ namespace BuildManager {
         }
 
         [SerializeField]
-        private string gitHeadPath = "../../../.git/logs/HEAD";
+        private string gitHeadPath;
         public string GitHeadPath {
             get {
                 return gitHeadPath;

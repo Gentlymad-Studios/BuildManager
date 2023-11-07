@@ -3,7 +3,10 @@ using UnityEditor;
 using UnityEngine;
 
 namespace BuildManager {
+    [CreateAssetMenu(fileName = nameof(BuildManagerRuntimeSettings), menuName = EXPECTED_PATH, order = 0)]
     public class BuildManagerRuntimeSettings : ScriptableObject {
+        public const string EXPECTED_PATH = "Settings/" + nameof(BuildManagerRuntimeSettings);
+
         [SerializeField]
         private string versionInfoPath;
         public string VersionInfoPath {
@@ -43,14 +46,14 @@ namespace BuildManager {
         public static BuildManagerRuntimeSettings Instance {
             get {
                 if (instance == null) {
-                    instance = Resources.Load<BuildManagerRuntimeSettings>("Settings/BuildManagerRuntimeSettings");
+                    instance = Resources.Load<BuildManagerRuntimeSettings>(EXPECTED_PATH);
                 }
 
 #if UNITY_EDITOR
                 if (instance == null) {
                     BuildManagerRuntimeSettings asset = CreateInstance<BuildManagerRuntimeSettings>();
 
-                    AssetDatabase.CreateAsset(asset, "Assets/Resources/Settings/BuildManagerRuntimeSettings.asset");
+                    AssetDatabase.CreateAsset(asset, EXPECTED_PATH + ".asset");
                     AssetDatabase.SaveAssets();
                     AssetDatabase.Refresh();
                 }
@@ -59,12 +62,5 @@ namespace BuildManager {
                 return instance;
             }
         }
-
-#if UNITY_EDITOR
-        [InitializeOnLoadMethod]
-        public static void Initialize() {
-            instance = Instance;
-        }
-#endif
     }
 }

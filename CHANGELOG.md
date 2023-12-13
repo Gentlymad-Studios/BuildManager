@@ -48,3 +48,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.6] - 2023-08-29
 ### Fixed
 - fix define overwrite
+
+## [0.1.7] - 2023-12-13
+### Changed
+- move versioninfo to BuildManagerRuntimeSettings
+
+### Added
+- add adapter

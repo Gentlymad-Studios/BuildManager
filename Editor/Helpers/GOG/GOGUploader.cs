@@ -108,7 +108,7 @@ namespace BuildManager {
             } else {
                 Settings.CacheDataPath();
                 Settings.CacheStreamingAssetsPath();
-                string version = VersionInfo.VersionCode;
+                string version = BuildManagerRuntimeSettings.Instance.VersionCode;
                 process.StartProcess(selectedAppConfig, version, PlayerSettings.productName, targets);
             }
         }
@@ -131,7 +131,7 @@ namespace BuildManager {
                 } else {
                     Settings.CacheDataPath();
                     Settings.CacheStreamingAssetsPath();
-                    string version = VersionInfo.VersionCode;
+                    string version = BuildManagerRuntimeSettings.Instance.VersionCode;
                     process.StartProcessHeadless(selectedAppConfig, version, PlayerSettings.productName, targets);
                 }
             } else {

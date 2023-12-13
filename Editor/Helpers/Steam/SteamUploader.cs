@@ -116,14 +116,16 @@ namespace BuildManager{
         }
 
         public string CreateStandardBuildMessage(string buildMessage) {
+            BuildManagerRuntimeSettings settings = BuildManagerRuntimeSettings.Instance;
+
             string message = "";
             // Add relevant build information
             message += "[ ";
-            message += "DateAndTime : " + VersionInfo.BuildTimestamp + ", ";
-            message += "Version: " + VersionInfo.VersionCode + ", ";
-            message += "Tag: " + VersionInfo.VersionName + ", ";
+            message += "DateAndTime : " + settings.BuildTimestamp + ", ";
+            message += "Version: " + settings.VersionCode + ", ";
+            message += "Tag: " + settings.VersionName + ", ";
             message += "AppID: " + SteamAppID.AppID + ", ";
-            message += "GitHash: " + VersionInfo.GitHash + ", ";
+            message += "GitHash: " + settings.GitHash + ", ";
             message += "BuildTargets: {" + buildMessage+ "}";
             message += " ]";
             return message;

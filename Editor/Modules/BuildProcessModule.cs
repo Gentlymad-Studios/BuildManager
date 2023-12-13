@@ -10,7 +10,6 @@ using System.IO;
 namespace BuildManager {
 
     public class BuildProcessModule : TargetGroupDependentModuleBase {
-
         private const string exclusionKey = "BuildManager_RunExclusion";
         private const string sendMailKey = "BuildManager_SendMail";
         private const string buildAddressableBundles = "BuildManager_BuildAddressableBundles";
@@ -35,9 +34,6 @@ namespace BuildManager {
 
         public SuccessfulBuildTargets succeededBuildTargets = new SuccessfulBuildTargets();
         private string lastBuildTargetPath = null;
-
-        public delegate void Callback();
-        public static Callback BeforeBuild;
 
         enum BuildBundlesFilter {
             [Tooltip("No bundles will be built.")]
@@ -154,7 +150,6 @@ namespace BuildManager {
             miscFoldoutArea.Draw();
         }
 
-
         private void ManageTargetSelection(BuildTargetHelper target) {
             string identifier = TypeName + "." + targetGroupModule.activeTargetGroup.name + "." + target.name;
             target.button.active = EditorPrefs.GetBool(identifier, false);
@@ -198,9 +193,8 @@ namespace BuildManager {
         }
 
         public void SaveHeadless(DistributionPlatform plattform,bool isDevBuild, BuildTarget buildtarget, string branch, int appID, bool upload = true) {
-            if (BeforeBuild != null) {
-                BeforeBuild();
-            }
+            BuildManagerRuntimeSettings settings = BuildManagerRuntimeSettings.Instance;
+            settings.Adapter.OnBeforeBuild();
 
             BuildPlayerOptions options = new BuildPlayerOptions();
 
@@ -215,25 +209,25 @@ namespace BuildManager {
             options.scenes = (from scene in EditorBuildSettings.scenes where scene.enabled select scene.path).ToArray();
 
             // increment build version
-            VersionInfo.BuildCounter++;
+            settings.BuildCounter++;
 
             // get newest git hash
-            VersionInfo.UpdateGitHash();
+            settings.UpdateGitHash();
 
             // update current timestamp
-            VersionInfo.UpdateBuildTimestamp();
+            settings.UpdateBuildTimestamp();
 
             // update version code
-            VersionInfo.UpdateVersionCode();
+            settings.UpdateVersionCode();
 
             // refresh asset database
             AssetDatabase.Refresh();
 
             // Set version numbers for all platforms
-            PlayerSettings.bundleVersion = VersionInfo.VersionCode;
-            PlayerSettings.macOS.buildNumber = VersionInfo.BuildCounter.ToString();
-            PlayerSettings.iOS.buildNumber = VersionInfo.BuildCounter.ToString();
-            PlayerSettings.Android.bundleVersionCode = VersionInfo.BuildCounter;
+            PlayerSettings.bundleVersion = settings.VersionCode;
+            PlayerSettings.macOS.buildNumber = settings.BuildCounter.ToString();
+            PlayerSettings.iOS.buildNumber = settings.BuildCounter.ToString();
+            PlayerSettings.Android.bundleVersionCode = settings.BuildCounter;
 
             // clear build targets
             if (succeededBuildTargets == null) {
@@ -243,7 +237,7 @@ namespace BuildManager {
             } else if (succeededBuildTargets.builds.Count > 0) {
                 succeededBuildTargets.builds.Clear();
             }
-            succeededBuildTargets.version = VersionInfo.VersionCode;
+            succeededBuildTargets.version = settings.VersionCode;
 
             succeededBuildTargets.distributionPlatform = plattform;
             succeededBuildTargets.distributionBranch = branch;
@@ -307,9 +301,8 @@ namespace BuildManager {
         }
 
         public override void Save() {
-            if (BeforeBuild != null) {
-                BeforeBuild();
-            }
+            BuildManagerRuntimeSettings settings = BuildManagerRuntimeSettings.Instance;
+            settings.Adapter.OnBeforeBuild();
 
             BuildPlayerOptions options = new BuildPlayerOptions();
 
@@ -336,25 +329,25 @@ namespace BuildManager {
             options.scenes = (from scene in EditorBuildSettings.scenes where scene.enabled select scene.path).ToArray();
 
             // increment build version
-            VersionInfo.BuildCounter++;
+            settings.BuildCounter++;
 
             // get newest git hash
-            VersionInfo.UpdateGitHash();
+            settings.UpdateGitHash();
 
             // update current timestamp
-            VersionInfo.UpdateBuildTimestamp();
+            settings.UpdateBuildTimestamp();
 
             // update version code
-            VersionInfo.UpdateVersionCode();
+            settings.UpdateVersionCode();
 
             // refresh asset database
             AssetDatabase.Refresh();
 
             // Set version numbers for all platforms
-            PlayerSettings.bundleVersion = VersionInfo.VersionCode;
-            PlayerSettings.macOS.buildNumber = VersionInfo.BuildCounter.ToString();
-            PlayerSettings.iOS.buildNumber = VersionInfo.BuildCounter.ToString();
-            PlayerSettings.Android.bundleVersionCode = VersionInfo.BuildCounter;
+            PlayerSettings.bundleVersion = settings.VersionCode;
+            PlayerSettings.macOS.buildNumber = settings.BuildCounter.ToString();
+            PlayerSettings.iOS.buildNumber = settings.BuildCounter.ToString();
+            PlayerSettings.Android.bundleVersionCode = settings.BuildCounter;
 
             // clear build targets
             if (succeededBuildTargets == null) {
@@ -364,7 +357,7 @@ namespace BuildManager {
             } else if (succeededBuildTargets.builds.Count > 0) {
                 succeededBuildTargets.builds.Clear();
             }
-            succeededBuildTargets.version = VersionInfo.VersionCode;
+            succeededBuildTargets.version = settings.VersionCode;
             if (IsSteamEnabled) {
                 succeededBuildTargets.distributionPlatform = DistributionPlatform.Steam;
                 succeededBuildTargets.distributionBranch = steamPipe.GetBranchName();

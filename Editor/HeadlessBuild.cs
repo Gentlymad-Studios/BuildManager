@@ -97,7 +97,7 @@ namespace BuildManager {
             //Restore Defines to State before Build
             PlayerSettings.SetScriptingDefineSymbolsForGroup(targetGroupModule.activeTargetGroup.group, DefineArrayToString(definesBackup));
 
-            WriteToProperties("Version", VersionInfo.VersionCode);
+            WriteToProperties("Version", BuildManagerRuntimeSettings.Instance.VersionCode);
             WriteToProperties("Error", "None");
 
             Console.WriteLine($"##### Build Done: {DateTime.Now.ToString("HH:mm:ss")} #####");

@@ -220,6 +220,8 @@ namespace BuildManager {
             // update version code
             settings.UpdateVersionCode();
 
+            EditorUtility.SetDirty(settings);
+
             // refresh asset database
             AssetDatabase.Refresh();
 
@@ -339,6 +341,8 @@ namespace BuildManager {
 
             // update version code
             settings.UpdateVersionCode();
+
+            EditorUtility.SetDirty(settings);
 
             // refresh asset database
             AssetDatabase.Refresh();

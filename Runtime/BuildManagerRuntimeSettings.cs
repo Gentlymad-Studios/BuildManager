@@ -44,12 +44,13 @@ namespace BuildManager {
         private Version version = null;
         public Version Version {
             get {
+#if UNITY_EDITOR
+                if (Application.isPlaying) {
+                    UpdateVersionCode();
+                }
+#endif
                 if (version == null) {
-                    try {
-                        version = new Version(versionCode);
-                    }catch{
-                        version = null;
-                    }
+                    version = new Version(versionCode);
                 }
 
                 return version;

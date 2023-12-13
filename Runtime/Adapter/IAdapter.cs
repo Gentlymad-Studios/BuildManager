@@ -7,7 +7,5 @@ namespace BuildManager {
         string CreateGitHash();
 
         string CreateVersionCode();
-
-        void OnBeforeBuild();
     }
 }

@@ -29,7 +29,5 @@ namespace BuildManager {
         public string CreateVersionCode() {
             return "0.0.0";
         }
-
-        public void OnBeforeBuild() {}
     }
 }

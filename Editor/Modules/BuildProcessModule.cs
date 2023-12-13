@@ -32,6 +32,9 @@ namespace BuildManager {
         private List<GOGGalaxySettings.GOGGalaxyAppConfig> gogConfigs;
         private GOGGalaxySettings.PlatformConfig gogPlatformConfig;
 
+        public delegate void Callback();
+        public static Callback BeforeBuild;
+
         public SuccessfulBuildTargets succeededBuildTargets = new SuccessfulBuildTargets();
         private string lastBuildTargetPath = null;
 
@@ -193,8 +196,9 @@ namespace BuildManager {
         }
 
         public void SaveHeadless(DistributionPlatform plattform,bool isDevBuild, BuildTarget buildtarget, string branch, int appID, bool upload = true) {
-            BuildManagerRuntimeSettings settings = BuildManagerRuntimeSettings.Instance;
-            settings.Adapter.OnBeforeBuild();
+            if (BeforeBuild != null) {
+                BeforeBuild();
+            }
 
             BuildPlayerOptions options = new BuildPlayerOptions();
 
@@ -207,6 +211,8 @@ namespace BuildManager {
 
             options.targetGroup = targetGroupModule.activeTargetGroup.group;
             options.scenes = (from scene in EditorBuildSettings.scenes where scene.enabled select scene.path).ToArray();
+
+            BuildManagerRuntimeSettings settings = BuildManagerRuntimeSettings.Instance;
 
             // increment build version
             settings.BuildCounter++;
@@ -303,8 +309,9 @@ namespace BuildManager {
         }
 
         public override void Save() {
-            BuildManagerRuntimeSettings settings = BuildManagerRuntimeSettings.Instance;
-            settings.Adapter.OnBeforeBuild();
+            if (BeforeBuild != null) {
+                BeforeBuild();
+            }
 
             BuildPlayerOptions options = new BuildPlayerOptions();
 
@@ -329,6 +336,8 @@ namespace BuildManager {
 
             options.targetGroup = targetGroupModule.activeTargetGroup.group;
             options.scenes = (from scene in EditorBuildSettings.scenes where scene.enabled select scene.path).ToArray();
+
+            BuildManagerRuntimeSettings settings = BuildManagerRuntimeSettings.Instance;
 
             // increment build version
             settings.BuildCounter++;

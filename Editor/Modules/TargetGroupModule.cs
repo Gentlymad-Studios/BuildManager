@@ -131,8 +131,9 @@ namespace BuildManager {
                 return;
             }
 
-            productNameCache = productNameTmp;
+            productNameCache = productName;
             productNameTmp = newName;
+            productName = newName;
             Save();
         }
 
@@ -142,6 +143,7 @@ namespace BuildManager {
             }
 
             productNameTmp = productNameCache;
+            productName = productNameCache;
             Save();
         }
     }

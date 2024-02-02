@@ -16,7 +16,7 @@ namespace BuildManager {
     public class TargetGroupModule : IModuleBase {
         private static string[] searchBuiltInIconPatterns = new string[] { "d_BuildSettings.{0}.Small", "BuildSettings.{0}.Small", "d_BuildSettings.{0}", "BuildSettings.{0}" };
         private Dictionary<string, BuildTargetGroupHelper> targetGroupLookUp = new Dictionary<string, BuildTargetGroupHelper>();
-        private string companyNameTmp, productNameTmp, productNameCache, activeBuildTargetGroupName = null;
+        private string companyNameTmp, companyNameCache, productNameTmp, productNameCache, activeBuildTargetGroupName = null;
         public bool targetGroupValidAndChanged = false;
         public BuildTargetGroupHelper activeTargetGroup = null;
         public string companyName, productName;
@@ -131,6 +131,7 @@ namespace BuildManager {
                 return;
             }
 
+            companyNameCache = companyName;
             productNameCache = productName;
             productNameTmp = newName;
             productName = newName;
@@ -142,6 +143,8 @@ namespace BuildManager {
                 return;
             }
 
+            companyNameTmp = companyNameCache;
+            companyName = companyNameCache;
             productNameTmp = productNameCache;
             productName = productNameCache;
             Save();

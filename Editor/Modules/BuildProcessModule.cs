@@ -250,6 +250,18 @@ namespace BuildManager {
             succeededBuildTargets.distributionPlatform = plattform;
             succeededBuildTargets.distributionBranch = branch;
 
+            switch (plattform) {
+                case DistributionPlatform.Steam:
+                    steamPipe.UploadHeadless(succeededBuildTargets, appID);
+                    targetGroupModule.OverwriteProductName(steamPipe.GetSelectedAppConfig().applicationName);
+                    break;
+
+                case DistributionPlatform.GOG:
+                    gogPipe.UploadHeadless(succeededBuildTargets, appID);
+                    targetGroupModule.OverwriteProductName(gogPipe.GetSelectedAppConfig().applicationName);
+                    break;
+            }
+
 
             System.Console.WriteLine($"##### Start to build all targets: {DateTime.Now.ToString("HH:mm:ss")} #####");
 
@@ -291,11 +303,11 @@ namespace BuildManager {
                 // upload to specific plattform if valid
                 switch (plattform) {
                     case DistributionPlatform.Steam:
-                        steamPipe.UploadHeadless(succeededBuildTargets, appID);
+                        steamPipe.UpdateSelectedAppConfig(tempAppID: appID);
                         break;
 
                     case DistributionPlatform.GOG:
-                        gogPipe.UploadHeadless(succeededBuildTargets, appID);
+                        gogPipe.UpdateSelectedAppConfig(tempAppID: appID);
                         break;
 
                     default:
@@ -306,6 +318,8 @@ namespace BuildManager {
             } else {
                 HeadlessBuild.WriteToProperties("UploadTime", "00:00");
             }
+
+            targetGroupModule.ResetProductName();
         }
 
         public override void Save() {
@@ -374,9 +388,11 @@ namespace BuildManager {
             if (IsSteamEnabled) {
                 succeededBuildTargets.distributionPlatform = DistributionPlatform.Steam;
                 succeededBuildTargets.distributionBranch = steamPipe.GetBranchName();
+                targetGroupModule.OverwriteProductName(steamPipe.GetSelectedAppConfig().applicationName);
             } else if (IsGOGEnabled) {
                 succeededBuildTargets.distributionPlatform = DistributionPlatform.GOG;
                 succeededBuildTargets.distributionBranch = "";
+                targetGroupModule.OverwriteProductName(gogPipe.GetSelectedAppConfig().applicationName);
             } else if (IsMagentaEnabled) {
                 succeededBuildTargets.distributionPlatform = DistributionPlatform.Magenta;
                 succeededBuildTargets.distributionBranch = "";
@@ -424,6 +440,8 @@ namespace BuildManager {
             Upload(succeededBuildTargets);
             // send a mail notification
             SendMail(succeededBuildTargets);
+
+            targetGroupModule.ResetProductName();
 
             if (Event.current != null)
                 GUIUtility.ExitGUI();

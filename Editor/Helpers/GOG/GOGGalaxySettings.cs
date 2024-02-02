@@ -16,6 +16,8 @@ namespace BuildManager {
             public string clientID = "";
             public string clientSecret = "";
             public string displayName = "";
+            [Tooltip("If this is set, the Application Name will be overwrirten")]
+            public string applicationName;
 
             public List<PlatformConfig> platformConfigs = new List<PlatformConfig> { };
             public List<LanguageDepotConfig> languageDepots = new List<LanguageDepotConfig> { };

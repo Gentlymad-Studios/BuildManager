@@ -161,7 +161,14 @@ namespace BuildManager {
                 if (instance == null) {
                     BuildManagerRuntimeSettings asset = CreateInstance<BuildManagerRuntimeSettings>();
 
-                    AssetDatabase.CreateAsset(asset, EXPECTED_PATH + ".asset");
+                    string directory = Path.GetDirectoryName(Path.GetFullPath("Assets/Resources/" + EXPECTED_PATH + ".asset"));
+                    if (!Directory.Exists(directory)) {
+                        Directory.CreateDirectory(directory);
+                    }
+
+                    string filename = Path.GetFileName(EXPECTED_PATH + ".asset");
+
+                    AssetDatabase.CreateAsset(asset, $"Assets/Resources/{EXPECTED_PATH}.asset");
                     AssetDatabase.SaveAssets();
                     AssetDatabase.Refresh();
                 }

@@ -35,7 +35,7 @@ namespace BuildManager {
             UpdateSelectedAppConfig(true);
         }
 
-        private void UpdateSelectedAppConfig(bool forceUpdate = false, int tempAppID = -1) {
+        public void UpdateSelectedAppConfig(bool forceUpdate = false, int tempAppID = -1) {
             productID = tempAppID == -1 ? EditorPrefs.GetString(appIDKey, null) :  tempAppID.ToString();
             for (int i = 0; i < Settings.GOGGalaxy.appConfigs.Count; i++) {
                 if (Settings.GOGGalaxy.appConfigs[i].productID == productID) {
@@ -95,6 +95,14 @@ namespace BuildManager {
             if (targets != null && targets.Count > 0) {
                 StartUploadProcess(targets);
             }
+        }
+
+        /// <summary>
+        /// Retruns the selected AppConfig
+        /// </summary>
+        /// <returns></returns>
+        public GOGGalaxySettings.GOGGalaxyAppConfig GetSelectedAppConfig() {
+            return selectedAppConfig;
         }
 
         /// <summary>

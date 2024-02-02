@@ -12,6 +12,8 @@ namespace BuildManager {
         public class SteamAppConfig {
             public string name;
             public int appID;
+            [Tooltip("If this is set, the Application Name will be overwrirten")]
+            public string applicationName;
             public List<BuildDepotConfig> buildDepots = new List<BuildDepotConfig> { };
             public List<DLCDepotConfig> dlcDepots = new List<DLCDepotConfig> { };
             public List<LanguageDepotConfig> languageDepots = new List<LanguageDepotConfig> { };

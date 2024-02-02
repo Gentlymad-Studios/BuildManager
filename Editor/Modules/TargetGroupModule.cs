@@ -16,7 +16,7 @@ namespace BuildManager {
     public class TargetGroupModule : IModuleBase {
         private static string[] searchBuiltInIconPatterns = new string[] { "d_BuildSettings.{0}.Small", "BuildSettings.{0}.Small", "d_BuildSettings.{0}", "BuildSettings.{0}" };
         private Dictionary<string, BuildTargetGroupHelper> targetGroupLookUp = new Dictionary<string, BuildTargetGroupHelper>();
-        private string companyNameTmp, productNameTmp, activeBuildTargetGroupName = null;
+        private string companyNameTmp, productNameTmp, productNameCache, activeBuildTargetGroupName = null;
         public bool targetGroupValidAndChanged = false;
         public BuildTargetGroupHelper activeTargetGroup = null;
         public string companyName, productName;
@@ -122,6 +122,27 @@ namespace BuildManager {
             foreach (KeyValuePair<string, BuildTargetGroupHelper> buildTargetGroup in targetGroupLookUp) {
                 PlayerSettings.SetApplicationIdentifier(buildTargetGroup.Value.group, bundleIdentifier);
             }
+        }
+
+        public void OverwriteProductName(string newName) {
+            productNameCache = string.Empty;
+
+            if (string.IsNullOrEmpty(newName)) {
+                return;
+            }
+
+            productNameCache = productNameTmp;
+            productNameTmp = newName;
+            Save();
+        }
+
+        public void ResetProductName() {
+            if (string.IsNullOrEmpty(productNameCache)) {
+                return;
+            }
+
+            productNameTmp = productNameCache;
+            Save();
         }
     }
 }

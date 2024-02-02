@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Settings = BuildManager.BuildManagerSettings;
 using System;
 
-namespace BuildManager{
+namespace BuildManager {
 
     public class SteamUploader {
 
@@ -32,19 +32,19 @@ namespace BuildManager{
             }
         }
 
-        public SteamUploader(string editorPrefsPrefix){
+        public SteamUploader(string editorPrefsPrefix) {
             appIDKey = editorPrefsPrefix + ".appIDKey";
-                        messageKey = editorPrefsPrefix + ".buildmessage";
-            foldoutArea = new EditorHelper.UI.EditorPrefsManagedFoldoutArea(OnFoldoutArea, editorPrefsPrefix + ".foldOutKey", true,  "Steam Specific Options");
+            messageKey = editorPrefsPrefix + ".buildmessage";
+            foldoutArea = new EditorHelper.UI.EditorPrefsManagedFoldoutArea(OnFoldoutArea, editorPrefsPrefix + ".foldOutKey", true, "Steam Specific Options");
             UpdateSelectedAppConfig(true);
         }
 
-        private void UpdateSelectedAppConfig(bool forceUpdate = false, int tempAppID = -1) {
+        public void UpdateSelectedAppConfig(bool forceUpdate = false, int tempAppID = -1) {
             appID = tempAppID < 0 ? EditorPrefs.GetInt(appIDKey, 0) : tempAppID;
             for (int i = 0; i < Settings.Steam.appConfigs.Count; i++) {
                 if (Settings.Steam.appConfigs[i].appID == appID) {
                     selectedAppConfig = Settings.Steam.appConfigs[i];
-                    int oldSteamID = SteamAppID.AppID; 
+                    int oldSteamID = SteamAppID.AppID;
                     SteamAppID.AppID = appID;
                     if (forceUpdate || oldSteamID != appID) {
                         if (!string.IsNullOrEmpty(Settings.Steam.PublisherAPIKey) && !Settings.Steam.PublisherAPIKey.StartsWith("<add")) {
@@ -76,7 +76,7 @@ namespace BuildManager{
             // extract and display all available app configs
             appConfigNames.Clear();
             int index = 0;
-            for (int i=0; i<Settings.Steam.appConfigs.Count; i++) {
+            for (int i = 0; i < Settings.Steam.appConfigs.Count; i++) {
                 appConfigNames.Add(Settings.Steam.appConfigs[i].name);
                 if (Settings.Steam.appConfigs[i].appID == appID) {
                     index = i;
@@ -110,9 +110,17 @@ namespace BuildManager{
             EditorGUILayout.EndVertical();
         }
 
-        public void Draw(){
+        public void Draw() {
             SetupStyles();
             foldoutArea.Draw();
+        }
+
+        /// <summary>
+        /// Retruns the selected AppConfig
+        /// </summary>
+        /// <returns></returns>
+        public SteamSettings.SteamAppConfig GetSelectedAppConfig() {
+            return selectedAppConfig;
         }
 
         public string CreateStandardBuildMessage(string buildMessage) {
@@ -126,7 +134,7 @@ namespace BuildManager{
             message += "Tag: " + settings.VersionName + ", ";
             message += "AppID: " + SteamAppID.AppID + ", ";
             message += "GitHash: " + settings.GitHash + ", ";
-            message += "BuildTargets: {" + buildMessage+ "}";
+            message += "BuildTargets: {" + buildMessage + "}";
             message += " ]";
             return message;
         }
@@ -150,7 +158,7 @@ namespace BuildManager{
         /// </summary>
         /// <param name="targets"></param>
         public void UploadDefault(SuccessfulBuildTargets targets) {
-            Debug.Log("[Steam: Upload Default] "+ ((targets != null && targets.builds != null) ? string.Join(",", targets.GetBuildTargets()) : "NULL!"));
+            Debug.Log("[Steam: Upload Default] " + ((targets != null && targets.builds != null) ? string.Join(",", targets.GetBuildTargets()) : "NULL!"));
             if (targets != null && targets.Count > 0) {
                 StartUploadProcess(targets);
             }

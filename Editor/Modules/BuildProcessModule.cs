@@ -252,12 +252,12 @@ namespace BuildManager {
 
             switch (plattform) {
                 case DistributionPlatform.Steam:
-                    steamPipe.UploadHeadless(succeededBuildTargets, appID);
+                    steamPipe.UpdateSelectedAppConfig(tempAppID: appID);
                     targetGroupModule.OverwriteProductName(steamPipe.GetSelectedAppConfig().applicationName);
                     break;
 
                 case DistributionPlatform.GOG:
-                    gogPipe.UploadHeadless(succeededBuildTargets, appID);
+                    gogPipe.UpdateSelectedAppConfig(tempAppID: appID);
                     targetGroupModule.OverwriteProductName(gogPipe.GetSelectedAppConfig().applicationName);
                     break;
             }
@@ -303,11 +303,11 @@ namespace BuildManager {
                 // upload to specific plattform if valid
                 switch (plattform) {
                     case DistributionPlatform.Steam:
-                        steamPipe.UpdateSelectedAppConfig(tempAppID: appID);
+                        steamPipe.UploadHeadless(succeededBuildTargets, appID);
                         break;
 
                     case DistributionPlatform.GOG:
-                        gogPipe.UpdateSelectedAppConfig(tempAppID: appID);
+                        gogPipe.UploadHeadless(succeededBuildTargets, appID);
                         break;
 
                     default:

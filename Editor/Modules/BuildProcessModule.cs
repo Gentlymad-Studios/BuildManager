@@ -250,8 +250,11 @@ namespace BuildManager {
             succeededBuildTargets.distributionPlatform = plattform;
             succeededBuildTargets.distributionBranch = branch;
 
+            int cachedAppId = -1;
+
             switch (plattform) {
                 case DistributionPlatform.Steam:
+                    cachedAppId = SteamAppID.AppID;
                     steamPipe.UpdateSelectedAppConfig(tempAppID: appID);
                     targetGroupModule.OverwriteProductName(steamPipe.GetSelectedAppConfig().applicationName);
                     break;
@@ -262,14 +265,13 @@ namespace BuildManager {
                     break;
             }
 
-
-            System.Console.WriteLine($"##### Start to build all targets: {DateTime.Now.ToString("HH:mm:ss")} #####");
+            Console.WriteLine($"##### Start to build all targets: {DateTime.Now.ToString("HH:mm:ss")} #####");
 
             // check if the active build target is in the list of builds to create.
             // if yes, build this first as we don't have to re convert assets for the target platform & speed things up.
             for (int i = 0; i < targets.Count; i++) {
                 if (EditorUserBuildSettings.activeBuildTarget == targets[i]) {
-                    System.Console.WriteLine("[Build Manager] Building for " + targets[i] + " first!");
+                    Console.WriteLine("[Build Manager] Building for " + targets[i] + " first!");
                     if (StartBuild(targets[i], BuildManagerSettings.BuildPath, options)) {
                         succeededBuildTargets.Add(targets[i], lastBuildTargetPath);
                     }
@@ -285,7 +287,7 @@ namespace BuildManager {
                 }
             }
 
-            System.Console.WriteLine($"##### Finished to build all targets: {DateTime.Now.ToString("HH:mm:ss")} #####");
+            Console.WriteLine($"##### Finished to build all targets: {DateTime.Now.ToString("HH:mm:ss")} #####");
 
             // update language depot files
             UpdateLanguageDepots();
@@ -317,6 +319,10 @@ namespace BuildManager {
                 }
             } else {
                 HeadlessBuild.WriteToProperties("UploadTime", "00:00");
+            }
+
+            if (plattform == DistributionPlatform.Steam) {
+                steamPipe.UpdateSelectedAppConfig(tempAppID: cachedAppId);
             }
 
             targetGroupModule.ResetProductName();

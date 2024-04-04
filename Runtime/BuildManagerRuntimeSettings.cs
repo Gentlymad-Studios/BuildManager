@@ -99,7 +99,6 @@ namespace BuildManager {
 
         public void UpdateVersionCode() {
             versionCode = Adapter.CreateVersionCode();
-            Debug.Log("Version: " + VersionCode);
         }
         #endregion
 
@@ -122,7 +121,6 @@ namespace BuildManager {
 
         public void UpdateGitHash() {
             GitHash = Adapter.CreateGitHash();
-            Debug.Log("GitHash: " + GitHash);
         }
         #endregion
 

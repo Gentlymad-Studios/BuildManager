@@ -66,6 +66,8 @@ namespace BuildManager {
 
             string distributionBranch = "";
 
+            bool isDemo = Settings.Headless.demo.appIds.Contains(appID);
+
             //Set Defines
             switch (distributionPlatform) {
                 case DistributionPlatform.Steam:
@@ -75,7 +77,7 @@ namespace BuildManager {
                         definesBackup = EditorHelper.Utility.GetDefinesForTargetGroup(targetGroupModule.activeTargetGroup.group);
                         PlayerSettings.SetScriptingDefineSymbolsForGroup(targetGroupModule.activeTargetGroup.group, DefineArrayToString(customDefines));
                     } else {
-                        OverwriteDefines(Settings.Headless.steam.enabledDefinesOverwrite.ToList());
+                        OverwriteDefines(Settings.Headless.steam.enabledDefinesOverwrite.ToList(), isDemo);
                     }
                     break;
 
@@ -84,7 +86,7 @@ namespace BuildManager {
                         definesBackup = EditorHelper.Utility.GetDefinesForTargetGroup(targetGroupModule.activeTargetGroup.group);
                         PlayerSettings.SetScriptingDefineSymbolsForGroup(targetGroupModule.activeTargetGroup.group, DefineArrayToString(customDefines));
                     } else {
-                        OverwriteDefines(Settings.Headless.gog.enabledDefinesOverwrite.ToList());
+                        OverwriteDefines(Settings.Headless.gog.enabledDefinesOverwrite.ToList(), isDemo);
                     }
                     break;
             }
@@ -104,12 +106,18 @@ namespace BuildManager {
         }
 
         //Overwrite Defines for given Platform
-        static void OverwriteDefines(List<string> enabledDefines) {
+        static void OverwriteDefines(List<string> enabledDefines, bool isDemo) {
             string[] defines = EditorHelper.Utility.GetDefinesForTargetGroup(targetGroupModule.activeTargetGroup.group);
             definesBackup = EditorHelper.Utility.GetDefinesForTargetGroup(targetGroupModule.activeTargetGroup.group);
 
             //*DEFINE means disabled
             for (int i=0; i < defines.Length; i++) {
+                //Force demo define
+                if (isDemo && defines[i].Contains(Settings.Headless.demo.define)) {
+                    defines[i] = Settings.Headless.demo.define;
+                    continue;
+                }
+
                 if (defines[i][0] == '*') {
                     if (enabledDefines.Contains(defines[i].TrimStart('*'))) {
                         defines[i] = defines[i].TrimStart('*');

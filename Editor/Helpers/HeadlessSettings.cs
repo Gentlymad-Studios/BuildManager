@@ -10,7 +10,10 @@ namespace BuildManager {
         [Tooltip("Path to the Jenkins Properties File. Will be Combined with the Unity Data Path.")]
         [SerializeField]
         public string jenkinsPropertiesPath = "../../jenkins.properties";
-        
+
+        [SerializeField]
+        public Demo demo = new Demo();
+
         [SerializeField]
         public SteamHeadless steam = new SteamHeadless();
 
@@ -27,6 +30,13 @@ namespace BuildManager {
         public class GogHeadless {
             [Tooltip("Fill with Defines that should be forced enabled for Headless Builds. Other Defines will be disabled.")]
             public string[] enabledDefinesOverwrite = new string[] { "GOGGALAXY" };
+        }
+
+        [Serializable]
+        public class Demo {
+            public string define = "IS_DEMO";
+            [Tooltip("List of AppIds that should handled as demos")]
+            public List<int> appIds;
         }
     }
 }

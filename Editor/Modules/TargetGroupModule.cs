@@ -132,6 +132,7 @@ namespace BuildManager {
             }
 
             companyNameCache = companyName;
+            companyNameTmp = companyName;
             productNameCache = productName;
             productNameTmp = newName;
             productName = newName;

@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using Settings = BuildManager.BuildManagerSettings;
+using RSettings = BuildManager.BuildManagerRuntimeSettings;
 
 namespace BuildManager {
     public class HeadlessBuild {
@@ -28,6 +29,9 @@ namespace BuildManager {
         //Start Build for given Platform
         static void BuildGeneral(DistributionPlatform distributionPlatform) {
             Console.WriteLine($"##### Unity startup done, Build started at: {DateTime.Now.ToString("HH:mm:ss")} #####");
+
+            RSettings.Instance.Adapter.BeforeHeadlessBuild();
+
             ClearProperties();
 
             targetGroupModule = new TargetGroupModule();
@@ -101,6 +105,8 @@ namespace BuildManager {
 
             WriteToProperties("Version", BuildManagerRuntimeSettings.Instance.VersionCode);
             WriteToProperties("Error", "None");
+
+            RSettings.Instance.Adapter.AfterHeadlessBuild();
 
             Console.WriteLine($"##### Build Done: {DateTime.Now.ToString("HH:mm:ss")} #####");
         }

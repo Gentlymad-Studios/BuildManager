@@ -7,5 +7,7 @@ namespace BuildManager {
         public abstract string CreateBuildTimestamp();
         public abstract string CreateGitHash();
         public abstract string CreateVersionCode();
+        public abstract void AfterHeadlessBuild();
+        public abstract void BeforeHeadlessBuild();
     }
 }

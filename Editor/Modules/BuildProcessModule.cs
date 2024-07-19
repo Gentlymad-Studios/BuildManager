@@ -6,6 +6,7 @@ using UnityEngine;
 using static EditorHelper.UI;
 using UnityEditor.Build.Reporting;
 using System.IO;
+using static UnityEngine.GraphicsBuffer;
 
 namespace BuildManager {
 
@@ -292,6 +293,8 @@ namespace BuildManager {
             // update language depot files
             UpdateLanguageDepots();
 
+            CopyAdditionalFiles();
+
             // write build info file
             if (File.Exists(BuildManagerSettings.BuildInfoPath)) {
                 File.Delete(BuildManagerSettings.BuildInfoPath);
@@ -433,6 +436,8 @@ namespace BuildManager {
                 UpdateLanguageDepots();
             }
 
+            CopyAdditionalFiles();
+
             // write build info file
             if (File.Exists(BuildManagerSettings.BuildInfoPath)) {
                 File.Delete(BuildManagerSettings.BuildInfoPath);
@@ -442,7 +447,7 @@ namespace BuildManager {
                 File.WriteAllText(BuildManagerSettings.BuildInfoPath, jsonBuildTargets);
             }
 
-            // upload to steam if valid
+            // upload to if valid
             Upload(succeededBuildTargets);
             // send a mail notification
             SendMail(succeededBuildTargets);
@@ -471,6 +476,29 @@ namespace BuildManager {
                 }
             } else if(File.Exists(path)) {
                 File.Delete(path);
+            }
+        }
+
+        /// <summary>
+        /// Copy Additional Files to Build
+        /// </summary>
+        void CopyAdditionalFiles() {
+            foreach(SuccessfulBuildTarget target in succeededBuildTargets.builds) {
+                string targetPath = Path.GetDirectoryName(target.targetPath);
+                for (int i = 0; i < BuildManagerSettings.General.additionalFiles.Count; i++) {
+                    GeneralSettings.AdditionalFiles additionaFile = BuildManagerSettings.General.additionalFiles[i];
+
+                    if (additionaFile != null && (additionaFile.buildTarget == target.buildTarget || additionaFile.buildTarget == BuildTarget.NoTarget)) {
+                        for (int j = 0; j < additionaFile.files.Length; j++) {
+                            string absoluteFilePath = Path.GetFullPath(Path.Combine(Application.dataPath, additionaFile.files[j]));
+                            string fileName = Path.GetFileName(absoluteFilePath);
+
+                            if (File.Exists(absoluteFilePath)) {
+                                File.Copy(absoluteFilePath, Path.Combine(targetPath, fileName), true);
+                            }
+                        }
+                    }
+                }
             }
         }
 

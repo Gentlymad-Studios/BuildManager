@@ -8,7 +8,7 @@ namespace BuildManager {
         /// <summary>
         /// The internally managed productID
         /// </summary>
-        private static string productID = "1464526060";
+        private static string productID = "";
 
         /// <summary>
         /// The internally managed clientID

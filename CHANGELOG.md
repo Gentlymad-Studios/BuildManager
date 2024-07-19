@@ -63,3 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.9] - 2024-06-04
 ### Added
 - add before / after build callback for headless builds
+
+## [0.2.0] - 2024-07-19
+### Added
+- add support to add extra files to the build (after building - before uploading)

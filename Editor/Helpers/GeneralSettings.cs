@@ -34,6 +34,16 @@ namespace BuildManager {
         }
 
         [Serializable]
+        public class AdditionalFiles {
+            [Tooltip("Target these Files are relevant for. Select 'NoTarget' to apply for all.")]
+            public BuildTarget buildTarget;
+            [Tooltip("Relativ to the Application DataPath")]
+            public string[] files;
+            [Tooltip("Relativ to the Executable")]
+            public string destination;
+        }
+
+        [Serializable]
         public class Paths {
             [SerializeField]
             private string _buildsFolder = "../Builds/";
@@ -57,5 +67,7 @@ namespace BuildManager {
         public List<LanguageDepot> languageDepots = new List<LanguageDepot>();
         public List<ExcludePath> excludePaths = new List<ExcludePath>();
         public List<ValidatorBase> validators = new List<ValidatorBase> ();
+        [Tooltip("Files that should be added to the Build.")]
+        public List<AdditionalFiles> additionalFiles = new List<AdditionalFiles>();
     }
 }

@@ -11,8 +11,9 @@ namespace BuildManager {
         [SerializeField]
         public string jenkinsPropertiesPath = "../../jenkins.properties";
 
+        [Tooltip("A List of States the Project should handle special.")]
         [SerializeField]
-        public Demo demo = new Demo();
+        public List<State> projectStates = new List<State>();
 
         [SerializeField]
         public SteamHeadless steam = new SteamHeadless();
@@ -33,9 +34,10 @@ namespace BuildManager {
         }
 
         [Serializable]
-        public class Demo {
-            public string define = "IS_DEMO";
-            [Tooltip("List of AppIds that should handled as demos")]
+        public class State {
+            [Tooltip("a Define for this State")]
+            public string define;
+            [Tooltip("List of AppIds that should handled as this State")]
             public List<int> appIds;
         }
     }

@@ -70,7 +70,7 @@ namespace BuildManager {
 
             string distributionBranch = "";
 
-            bool isDemo = Settings.Headless.demo.appIds.Contains(appID);
+            bool specialState = IsSpecialState(appID, out HeadlessSettings.State state);
 
             //Set Defines
             switch (distributionPlatform) {
@@ -81,7 +81,11 @@ namespace BuildManager {
                         definesBackup = EditorHelper.Utility.GetDefinesForTargetGroup(targetGroupModule.activeTargetGroup.group);
                         PlayerSettings.SetScriptingDefineSymbolsForGroup(targetGroupModule.activeTargetGroup.group, DefineArrayToString(customDefines));
                     } else {
-                        OverwriteDefines(Settings.Headless.steam.enabledDefinesOverwrite.ToList(), isDemo);
+                        List<string> defineOverrides = Settings.Headless.steam.enabledDefinesOverwrite.ToList();
+                        if (specialState && !string.IsNullOrWhiteSpace(state.define) && !defineOverrides.Contains(state.define)) {
+                            defineOverrides.Add(state.define);
+                        }
+                        OverwriteDefines(defineOverrides);
                     }
                     break;
 
@@ -90,7 +94,11 @@ namespace BuildManager {
                         definesBackup = EditorHelper.Utility.GetDefinesForTargetGroup(targetGroupModule.activeTargetGroup.group);
                         PlayerSettings.SetScriptingDefineSymbolsForGroup(targetGroupModule.activeTargetGroup.group, DefineArrayToString(customDefines));
                     } else {
-                        OverwriteDefines(Settings.Headless.gog.enabledDefinesOverwrite.ToList(), isDemo);
+                        List<string> defineOverrides = Settings.Headless.gog.enabledDefinesOverwrite.ToList();
+                        if (specialState && !string.IsNullOrWhiteSpace(state.define) && !defineOverrides.Contains(state.define)) {
+                            defineOverrides.Add(state.define);
+                        }
+                        OverwriteDefines(defineOverrides);
                     }
                     break;
             }
@@ -111,19 +119,26 @@ namespace BuildManager {
             Console.WriteLine($"##### Build Done: {DateTime.Now.ToString("HH:mm:ss")} #####");
         }
 
+        static bool IsSpecialState(int appID, out HeadlessSettings.State state) {
+            state = null;
+
+            for (int i = 0; i < Settings.Headless.projectStates.Count; i++) {
+                if (Settings.Headless.projectStates[i].appIds.Contains(appID)) {
+                    state = Settings.Headless.projectStates[i];
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         //Overwrite Defines for given Platform
-        static void OverwriteDefines(List<string> enabledDefines, bool isDemo) {
+        static void OverwriteDefines(List<string> enabledDefines) {
             string[] defines = EditorHelper.Utility.GetDefinesForTargetGroup(targetGroupModule.activeTargetGroup.group);
             definesBackup = EditorHelper.Utility.GetDefinesForTargetGroup(targetGroupModule.activeTargetGroup.group);
 
             //*DEFINE means disabled
             for (int i=0; i < defines.Length; i++) {
-                //Force demo define
-                if (isDemo && defines[i].Contains(Settings.Headless.demo.define)) {
-                    defines[i] = Settings.Headless.demo.define;
-                    continue;
-                }
-
                 if (defines[i][0] == '*') {
                     if (enabledDefines.Contains(defines[i].TrimStart('*'))) {
                         defines[i] = defines[i].TrimStart('*');

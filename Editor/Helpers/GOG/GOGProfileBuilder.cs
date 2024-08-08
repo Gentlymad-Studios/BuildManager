@@ -4,6 +4,7 @@ using UnityEditor;
 using System.IO;
 using Settings = BuildManager.BuildManagerSettings;
 using Newtonsoft.Json;
+using static BuildManager.GOGGalaxySettings;
 
 namespace BuildManager {
     /// <summary>
@@ -58,12 +59,27 @@ namespace BuildManager {
                             project.products.Add(product);
 
                             // create & setup exec task
-                            Task mainTask = new Task();
-                            mainTask.name = project.name;
-                            mainTask.languages = languageCodes;
-                            mainTask.osBitness = osBitnesses;
-                            mainTask.path = GetExecutablePathByPlatform(platformConfig.platform, productName);
-                            product.tasks.Add(mainTask);
+                            if (platformConfig.tasks == null || platformConfig.tasks.Count == 0) {
+                                Task mainTask = new Task();
+                                mainTask.name = project.name;
+                                mainTask.languages = languageCodes;
+                                mainTask.osBitness = osBitnesses;
+                                mainTask.path = GetExecutablePathByPlatform(platformConfig.platform, productName);
+                                product.tasks.Add(mainTask);
+                            } else {
+                                for (int i = 0; i < platformConfig.tasks.Count; i++) {
+                                    TaskConfig taskConfig = platformConfig.tasks[i];
+
+                                    Task task = new Task();
+                                    task.name = string.IsNullOrWhiteSpace(taskConfig.name) ? project.name : taskConfig.name;
+                                    task.languages = languageCodes;
+                                    task.osBitness = osBitnesses;
+                                    task.isPrimary = i == 0 ? true : false;
+                                    task.path = GetExecutablePathByPlatform(platformConfig.platform, productName);
+                                    task.arguments = taskConfig.agruments;
+                                    product.tasks.Add(task);
+                                }
+                            }
 
                             // create & setup build depots
                             foreach (var validDepot in validBuildDepots) {

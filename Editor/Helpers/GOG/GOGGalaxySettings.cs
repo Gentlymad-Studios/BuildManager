@@ -28,6 +28,8 @@ namespace BuildManager {
             public bool enabled = true;
             public enum Platform { windows, osx, linux };
             public Platform platform;
+            [Tooltip("If this is empty, an default task will be created.\nThe first Entry will be automaticly the Primary Task.")]
+            public List<TaskConfig> tasks = new List<TaskConfig>();
             public List<BuildDepotConfig> buildDepots = new List<BuildDepotConfig> { };
             public List<DLCDepotConfig> dlcDepots = new List<DLCDepotConfig>() { };
 
@@ -58,11 +60,18 @@ namespace BuildManager {
         }
 
         [Serializable]
+        public class TaskConfig {
+            public string name;
+            public string agruments;
+        }
+
+        [Serializable]
         public class LanguageDepotConfig {
             public string name;
             public string languageCode;
             public bool enabled = true;
         }
+
         [Serializable]
         public class Paths {
 

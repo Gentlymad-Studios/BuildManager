@@ -11,5 +11,6 @@ namespace BuildManager.Templates.GOG {
         public string path;
         public bool isPrimary = true;
         public List<string> osBitness = new List<string>();
+        public string arguments;
     }
 }

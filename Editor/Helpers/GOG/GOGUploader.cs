@@ -42,6 +42,8 @@ namespace BuildManager {
                     selectedAppConfig = Settings.GOGGalaxy.appConfigs[i];
                     string oldID = GOGGalaxyClientIDAndSecret.ProductID;
                     GOGGalaxyClientIDAndSecret.ProductID = productID;
+                    GOGGalaxyClientIDAndSecret.ClientID = selectedAppConfig.clientID;
+                    GOGGalaxyClientIDAndSecret.ClientSecret = selectedAppConfig.clientSecret;
                     return;
                 }
             }

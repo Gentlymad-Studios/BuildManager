@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
@@ -79,22 +79,10 @@ namespace BuildManager {
 
                 if (Version.Minor > 19 || Version.Major > 0) {
                     return "Release";
-                } else {
-                    if (Version.Minor < 14) {
-                        return "Technical Test";
-                    } else if (Version.Minor < 15) {
-                        return "Prototype";
-                    } else if (Version.Minor < 16) {
-                        return "Alpha";
-                    } else if (Version.Minor < 17) {
-                        return "Beta";
-                    } else if (Version.Minor == 19) {
-                        return "Goldmaster";
-                    } else {
-                        return "Unknown";
-                    }
                 }
-            }
+
+				return "Early Access Release";
+			}
         }
 
         public void UpdateVersionCode() {

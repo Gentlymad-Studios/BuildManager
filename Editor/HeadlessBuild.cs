@@ -111,7 +111,8 @@ namespace BuildManager {
             //Restore Defines to State before Build
             PlayerSettings.SetScriptingDefineSymbolsForGroup(targetGroupModule.activeTargetGroup.group, DefineArrayToString(definesBackup));
 
-            WriteToProperties("Version", BuildManagerRuntimeSettings.Instance.VersionCode);
+            WriteToProperties("Version", RSettings.Instance.VersionCode);
+            WriteToProperties("Githash", RSettings.Instance.GitHash);
             WriteToProperties("Error", "None");
 
             RSettings.Instance.Adapter.AfterHeadlessBuild();

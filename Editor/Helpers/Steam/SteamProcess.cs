@@ -6,6 +6,9 @@ using UnityEditor;
 using BuildManager.Templates.Steam;
 using static BuildManager.BuildManagerSettings;
 using UnityEngine;
+using System.Text.RegularExpressions;
+using System;
+using UnityEngine.Windows;
 
 namespace BuildManager {
     /// <summary>
@@ -107,6 +110,11 @@ namespace BuildManager {
 
                 p.OutputDataReceived += new DataReceivedEventHandler((s, e) =>
                 {
+                    Match match = Regex.Match(e.Data, @"BuildID (\d+)");
+                    if (match.Success) {
+                        HeadlessBuild.WriteToProperties("BuildID", match.Groups[1].Value);
+                    }
+
                     System.Console.WriteLine(e.Data);
                 });
                 p.ErrorDataReceived += new DataReceivedEventHandler((s, e) => 

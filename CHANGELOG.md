@@ -67,3 +67,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.0] - 2024-07-19
 ### Added
 - add support to add extra files to the build (after building - before uploading)
+
+## [0.2.1] - 2024-07-19
+### Added
+- buildID is now extracted in headless builds

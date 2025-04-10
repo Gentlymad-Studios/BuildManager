@@ -4,6 +4,10 @@ using System.Threading.Tasks;
 using System.IO;
 using UnityEditor;
 using static BuildManager.BuildManagerSettings;
+using System;
+using Newtonsoft.Json;
+using System.Linq;
+using Newtonsoft.Json.Linq;
 
 namespace BuildManager {
     /// <summary>
@@ -76,6 +80,8 @@ namespace BuildManager {
                 if (isUploadable) {
                     var projectFiles = profileBuilder.GetFiles();
                     foreach (var projectFile in projectFiles) {
+                        ClearLog();
+
                         // create process
                         p = new Process();
                         // Path to executable
@@ -98,6 +104,8 @@ namespace BuildManager {
                         p.BeginOutputReadLine();
                         p.BeginErrorReadLine();
                         p.WaitForExit();
+
+                        HeadlessBuild.WriteToProperties("BuildID", ExtractBuildID(versionCode));
                     }
                     // remove .vdfs from disk
                     profileBuilder.RemoveProfilesFromDisk();
@@ -108,5 +116,46 @@ namespace BuildManager {
             }
         }
 
+        /// <summary>
+        /// Return the path of the log file 
+        /// </summary>
+        /// <returns></returns>
+        private string GetLogPath() {
+            string dir = Path.GetDirectoryName(GOGGalaxy.paths.Executable);
+            return Path.Join(dir, "output", "uploadLog.json");
+        }
+
+        /// <summary>
+        /// Clear the GOGBuilder Log file
+        /// </summary>
+        private void ClearLog() {
+            string logPath = GetLogPath();
+            if (File.Exists(logPath)) {
+                File.WriteAllText(logPath, string.Empty);
+            }
+        }
+
+        /// <summary>
+        /// Returns the buildID of the matching version
+        /// </summary>
+        /// <param name="version"></param>
+        /// <returns></returns>
+        private string ExtractBuildID(string version) {
+            string logPath = GetLogPath(); 
+            if (File.Exists(logPath)) {
+                string json = File.ReadAllText(logPath);
+
+                JObject obj = JObject.Parse(json);
+                JProperty entry = obj.Properties().FirstOrDefault();
+
+                if (entry != null) {
+                    if (version.Equals(entry.Value<string>("version"))) {
+                        return entry.Value<string>("buildId");
+                    }
+                }
+            }
+
+            return string.Empty;
+        }
     }
 }

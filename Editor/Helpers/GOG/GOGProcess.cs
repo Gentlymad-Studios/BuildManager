@@ -149,8 +149,9 @@ namespace BuildManager {
                 JProperty entry = obj.Properties().FirstOrDefault();
 
                 if (entry != null) {
-                    if (version.Equals(entry.Value<string>("version"))) {
-                        return entry.Value<string>("buildId");
+                    JObject value = entry.Value as JObject;
+                    if (version.Equals(value?["version"]?.ToString())) {
+                        return value?["buildId"]?.ToString();
                     }
                 }
             }

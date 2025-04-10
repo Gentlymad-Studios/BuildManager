@@ -110,11 +110,6 @@ namespace BuildManager {
 
                 p.OutputDataReceived += new DataReceivedEventHandler((s, e) =>
                 {
-                    Match match = Regex.Match(e.Data, @"BuildID (\d+)");
-                    if (match.Success) {
-                        HeadlessBuild.WriteToProperties("BuildID", match.Groups[1].Value);
-                    }
-
                     System.Console.WriteLine(e.Data);
                 });
                 p.ErrorDataReceived += new DataReceivedEventHandler((s, e) => 
@@ -130,6 +125,8 @@ namespace BuildManager {
                     p.BeginOutputReadLine();
                     p.BeginErrorReadLine();
                     p.WaitForExit();
+
+                    HeadlessBuild.WriteToProperties("BuildID", ExtractBuildID(appConfig.appID.ToString()));
                 } else {
                     HeadlessBuild.WriteToProperties("Error", "40");
                     EditorApplication.Exit(40);
@@ -144,5 +141,29 @@ namespace BuildManager {
             }
         }
 
+        /// <summary>
+        /// Return the path of the log file 
+        /// </summary>
+        /// <returns></returns>
+        private string GetLogPath(string appid) {
+            string dir = Path.GetDirectoryName(Path.GetDirectoryName(Steam.paths.ValidExecutable));
+            return Path.Join(dir, "Output", $"app_build_{appid}.log");
+        }
+
+        /// <summary>
+        /// Returns the buildID 
+        /// </summary>
+        /// <param name="appid"></param>
+        /// <returns></returns>
+        private string ExtractBuildID(string appid) {
+            string content = System.IO.File.ReadAllText(GetLogPath(appid));
+
+            Match match = Regex.Match(content, @"BuildID (\d+)");
+            if (match.Success) {
+                return match.Groups[1].Value;
+            }
+
+            return string.Empty;
+        }
     }
 }
